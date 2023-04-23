@@ -81,9 +81,9 @@ sum(p2.data)
 
 distribution_entropy(p2.data)
 
-res = maximize_entropy(p2.data, 2; method = Cone(MosekTools.Optimizer()))
-res1 = maximize_entropy(p2.data, 2; method = Gradient(10, MosekTools.Optimizer()))
-res2 = maximize_entropy(p2.data, 2; method = Ipfp(10))
+res = maximise_entropy(p2.data, 2; method = Cone(MosekTools.Optimizer()))
+res1 = maximise_entropy(p2.data, 2; method = Gradient(10, MosekTools.Optimizer()))
+res2 = maximise_entropy(p2.data, 2; method = Ipfp(10))
 
 diff1 = abs.(res.joined_probability - res1.joined_probability);
 diff2 = abs.(res.joined_probability - res2.joined_probability);

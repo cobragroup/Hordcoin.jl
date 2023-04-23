@@ -40,10 +40,10 @@ p13 = dropdims(sum(p.data, dims = 2), dims = 2)
 maxim = sum(distribution_entropy.([p1, p2, p3])) - mutual_information(p23) - mutual_information(p13)
 
 
-maximize_entropy(p.data, 2, method = Cone(MosekTools.Optimizer()))
+maximise_entropy(p.data, 2, method = Cone(MosekTools.Optimizer()))
 
-maximize_entropy(p.data, 2, method = Ipfp(10))
+maximise_entropy(p.data, 2, method = Ipfp(10))
 
-maximize_entropy(p.data, 2, method = Gradient(10))
+maximise_entropy(p.data, 2, method = Gradient(10))
 
-maximize_entropy(p.data, 2, method = Cone(SCS.Optimizer()))
+maximise_entropy(p.data, 2, method = Cone(SCS.Optimizer()))
