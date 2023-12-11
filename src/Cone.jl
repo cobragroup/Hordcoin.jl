@@ -2,8 +2,6 @@
 using JuMP, MosekTools
 using JuMP.Containers: @container
 
-export cone_over_probabilities
-
 function cone_over_probabilities(joined_prob::Array{Float64}, marginals)
 
     # defines the complement of a set of dimension

@@ -1,8 +1,6 @@
 using JuMP, MosekTools
 using JuMP.Containers: @container
 
-export descent
-
 function project_to_constraints(data, joined_prob::Array{Float64}, marginals)
 
     # defines the complement of a set of dimension

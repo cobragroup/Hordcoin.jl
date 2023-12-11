@@ -111,20 +111,25 @@ s = permutations_of_length(2, 3)
 sum(p2.data)
 
 res = descent(p2.data, s; iterations = 1000) # slower than IPFN
+res1 = maximize_entropy(p2.data, 2; method = Gradient(1000))
+
+res == res1
 
 sum(res)
 
-distribution_entropy(res_zero)
+distribution_entropy(res1)
 
-res2 = ipfn(p2.data, s; iterations = 10000)
+res2 = maximize_entropy(p2.data, 2; method = Ipfn(10000))
 
 distribution_entropy(res2)
 
-res3 = cone_over_probabilities(p2.data, s)[2]
-
-5.901406813707392
+res3 = maximize_entropy(p2.data, 2; method = Cone())[2]
+maximize_entropy(p2.data, 2; method = Cone())[1]
+maximize_entropy(p2.data, 1; method = Cone())[1]
 
 distribution_entropy(res3)
+
+connected_information(p2.data, 2)
 
 # ## BenchmarkTools.jl
 
