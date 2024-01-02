@@ -1,6 +1,6 @@
 using ProgressMeter
 
-function ipfn(joined_prob::Array{Float64}, marginals; iterations = 1)
+function ipfp(joined_prob::Array{Float64}, marginals; iterations = 1)
 
     ~(s::Tuple) = (i for i = 1:ndims(joined_prob) if i ∉ s)
 
@@ -21,6 +21,7 @@ function ipfn(joined_prob::Array{Float64}, marginals; iterations = 1)
             for i in eachindex(IndexCartesian(), joined_prob)
                 # Index that takes slice of joined_prob that corresponds to coordinates according to m
                 idx = [id in m ? i[id] : Colon() for id in 1:ndims(joined_prob)]
+                # Improve by precounting sum of joined_prob
                 b2[i] = b1[i] * sum(joined_prob[idx...]) / sum(b1[idx...])
             end
             order = !order  
