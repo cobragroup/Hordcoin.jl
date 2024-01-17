@@ -2,11 +2,6 @@
 using JuMP, MosekTools
 using JuMP.Containers: @container
 
-abstract type AbstractOptimizer end
-
-struct SCSOptimizer <: AbstractOptimizer end
-struct MosekOptimizer <: AbstractOptimizer end
-
 function cone_over_probabilities(joined_prob::Array{Float64}, marginals; solver::AbstractOptimizer = SCSOptimizer())
 
     # defines the complement of a set of dimension
@@ -15,15 +10,13 @@ function cone_over_probabilities(joined_prob::Array{Float64}, marginals; solver:
     n = length(joined_prob)
 
     if solver isa SCSOptimizer
-        solver = SCS.Optimizer
+        model = Model(SCS.Optimizer)
     elseif solver isa MosekOptimizer
-        solver = Mosek.Optimizer
+        model = Model(Mosek.Optimizer)
     else
         error("Unknown solver of type $(typeof(solver))")
     end
-
-    model = Model(solver)
-    # ?
+    
     set_silent(model)
 
     # define the result probabilities

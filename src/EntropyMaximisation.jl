@@ -17,6 +17,11 @@ module EntropyMaximisation
     export SCSOptimizer
     export MosekOptimizer
 
+    abstract type AbstractOptimizer end
+
+    struct SCSOptimizer <: AbstractOptimizer end
+    struct MosekOptimizer <: AbstractOptimizer end
+
     include("Utils.jl")
     include("IPFP.jl")
     include("Cone.jl")
@@ -33,20 +38,24 @@ module EntropyMaximisation
 
     struct Gradient <: AbstractMethod
         iterations::Int
+        optimizer::AbstractOptimizer
     end
 
-    Gradient() = Gradient(1000)
+    Gradient() = Gradient(10, SCSOptimizer())
+    Gradient(iterations::Int) = Gradient(iterations, SCSOptimizer())
 
     struct Ipfp <: AbstractMethod
         iterations::Int
     end
 
-    Ipfp() = Ipfp(1000)    
+    Ipfp() = Ipfp(10)    
 
-    function maximize_entropy(joined_probability::Array{Float64}, marginal_size; method = Cone())
+
+    function maximize_entropy(joined_probability::Array{T}, marginal_size; method = Cone()) where T <: Real
 
         marginal_size > ndims(joined_probability) && throw(DomainError("Marginal size cannot be greater than number of dimensions of joined probability"))
         marginal_size < 1 && throw(DomainError("Marginal size has to be possitive"))
+        !isapprox(sum(joined_probability), 1) && throw(DomainError("Joined probability has to sum to 1"))
 
         marginals = permutations_of_length(marginal_size, ndims(joined_probability))
 
@@ -54,7 +63,7 @@ module EntropyMaximisation
             # TODO: output is not the same as in IPFP or Gradient - list
             return cone_over_probabilities(joined_probability, marginals; solver = method.optimizer)
         elseif method isa Gradient
-            return descent(joined_probability, marginals, iterations = method.iterations)
+            return descent(joined_probability, marginals, iterations = method.iterations; solver = method.optimizer)
         elseif method isa Ipfp
             return ipfp(joined_probability, marginals, iterations = method.iterations)
         else
@@ -63,7 +72,7 @@ module EntropyMaximisation
     end
 
 
-    function connected_information(joined_probability::Array{Float64}, marginal_size; method = Cone(MosekOptimizer()))
+    function connected_information(joined_probability::Array{T}, marginal_size; method = Cone(MosekOptimizer())) where T <: Real
 
         marginal_size > ndims(joined_probability) && throw(DomainError("Marginal size cannot be greater than number of dimensions of joined probability"))
         marginal_size < 2 && throw(DomainError("Marginal size for connected information cannot be less than 2"))

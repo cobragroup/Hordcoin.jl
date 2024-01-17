@@ -71,3 +71,6 @@ connected_information(distribution, 3)
 
 connected_information(distribution, 4)
 # 0.0008551910730716372
+
+connected_information(distribution, 5)
+# 0005059196284165068

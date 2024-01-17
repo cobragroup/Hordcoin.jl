@@ -1,14 +1,20 @@
 using JuMP, MosekTools
 using JuMP.Containers: @container
 
-function project_to_constraints(data, joined_prob::Array{Float64}, marginals)
+function project_to_constraints(data, joined_prob::Array{Float64}, marginals; solver::AbstractOptimizer)
 
     # defines the complement of a set of dimension
     ~(s::Tuple) = (i for i = 1:ndims(joined_prob) if i ∉ s)
 
     n = length(joined_prob)
 
-    model = Model(SCS.Optimizer)
+    if solver isa SCSOptimizer
+        model = Model(SCS.Optimizer)
+    elseif solver isa MosekOptimizer
+        model = Model(Mosek.Optimizer)
+    else
+        error("Unknown solver of type $(typeof(solver))")
+    end
     # ?
     set_silent(model)
 
@@ -43,17 +49,15 @@ function partial_der_entropy(x; default = 10)
     return (- log(x) - 1)
 end
 
-function descent(data, marginals; iterations = 1000)
+function descent(data, marginals; iterations = 1000, solver::AbstractOptimizer = SCSOptimizer())
     step = 0.01
     flat = vec(data)
     smallest = 1/length(data) * 0.1
     def = -log(smallest) - 1
     @showprogress for i in 1:iterations
-        prev = flat
         flat += step * partial_der_entropy.(flat; default = def)
         flat[flat .< 0] .= 0
-        #@show flat
-        distance, flat = project_to_constraints(flat, data, marginals)
+        distance, flat = project_to_constraints(flat, data, marginals; solver = solver)
         #step *= 0.95
     end
     return reshape(flat, size(data)) 
