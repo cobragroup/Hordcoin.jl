@@ -86,8 +86,8 @@ module EntropyMaximisation
         marginal_size > ndims(joined_probability) && throw(DomainError("Marginal size cannot be greater than number of dimensions of joined probability"))
         marginal_size < 2 && throw(DomainError("Marginal size for connected information cannot be less than 2"))
 
-        entropy1 = maximize_entropy(joined_probability, marginal_size - 1; method)[1]
-        entropy2 = maximize_entropy(joined_probability, marginal_size; method)[1]
+        entropy1 = maximize_entropy(joined_probability, marginal_size - 1; method).entropy
+        entropy2 = maximize_entropy(joined_probability, marginal_size; method).entropy
         return entropy1 - entropy2
     end
 
