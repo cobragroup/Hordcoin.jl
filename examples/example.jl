@@ -8,26 +8,6 @@ permutations_of_length(2, 5)
 
 distribution_entropy([0.1, 0.2, 0.3, 0.4])
 
-ipfn([1, 0, 0, 0], [0, 1])
-
-
-project_to_constraints([0.1, 0.2, 0.3, 0.4], [0.1, 0.2, 0.3, 0.4], [1, 2])
-
-p = @container([x1 = [0, 1], x2 = [0, 1], x3 =[0, 1]], .0)
-
-p[0, 0, 0] = 1 / 16
-p[0, 0, 1] = 3 / 16
-p[0, 1, 0] = 3 / 16
-p[0, 1, 1] = 1 / 16
-p[1, 0, 0] = 1 / 16
-p[1, 0, 1] = 3 / 16
-p[1, 1, 0] = 3 / 16
-p[1, 1, 1] = 1 / 16
-
-descent(p.data, s)
-
-s = permutations_of_length(2, 3)
-
 p2 = @container([x1 = [0, 1, 2, 3], x2 = [0, 1, 2, 3], x3 =[0, 1, 2, 3]], .0)
 p2[0, 0, 0] = 0.02
 p2[0, 0, 1] = 0.018
@@ -97,39 +77,20 @@ p2[3, 3, 1] = 0.013
 p2[3, 3, 2] = 0.027
 p2[3, 3, 3] = 0
 
-s = permutations_of_length(2, 3)
-
 sum(p2.data)
 
 distribution_entropy(p2.data)
 
-res = descent(p2.data, s; iterations = 1000) # slower than IPFN
+res = maximize_entropy(p2.data, 2; method = Cone(MosekOptimizer()))
 res1 = maximize_entropy(p2.data, 2; method = Gradient(10, MosekOptimizer()))
-
-res == res1
-
-sum(res1)
-
-distribution_entropy(res1)
-
 res2 = maximize_entropy(p2.data, 2; method = Ipfp(10))
 
-distribution_entropy(res2)
+diff1 = abs.(res.joined_probability - res1.joined_probability);
+diff2 = abs.(res.joined_probability - res2.joined_probability);
+diff3 = abs.(res1.joined_probability - res2.joined_probability);
 
-res3 = maximize_entropy(p2.data, 2; method = Cone())
-res = maximize_entropy(p2.data, 2; method = Cone(MosekOptimizer()))
-maximize_entropy(p2.data, 2; method = Cone())
-
-distribution_entropy(res3)
+sum(diff1)
+sum(diff2)
+sum(diff3)
 
 connected_information(p2.data, 2)
-
-# ## BenchmarkTools.jl
-
-Pkg.add("BenchmarkTools")
-using BenchmarkTools
-
-@benchmark cone_over_probabilities(p2.data, s)
-
-# Mosek: Memory estimate: 856.18 KiB, allocs estimate: 12668. Time  (mean ± σ):   2.065 ms ±  1.464 ms
-# SCS:  Memory estimate: 1.03 MiB, allocs estimate: 13545. Time  (mean ± σ):   6.952 ms ± 666.974 μs
