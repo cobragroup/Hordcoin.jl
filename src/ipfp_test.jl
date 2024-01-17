@@ -1,4 +1,4 @@
-# ipfp.jl
+# ipfp.jl:
 
 function ipfp(joined_prob::Array{Float64}, marginals; iterations = 1)::EMResult
 
@@ -22,7 +22,12 @@ function ipfp(joined_prob::Array{Float64}, marginals; iterations = 1)::EMResult
                 # Index that takes slice of joined_prob that corresponds to coordinates according to m
                 idx = [id in m ? i[id] : Colon() for id in 1:ndims(joined_prob)]
                 # Improve by precounting sum of joined_prob
-                b2[i] = b1[i] * sum(joined_prob[idx...]) / sum(b1[idx...])
+                s = sum(joined_prob[idx...])
+                if s == 0
+                    b2[i] = 0
+                else
+                    b2[i] = b1[i] * s / sum(b1[idx...])
+                end
             end
             order = !order  
         end
