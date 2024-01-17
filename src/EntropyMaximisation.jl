@@ -2,10 +2,6 @@
 
 module EntropyMaximisation
 
-    # Optimize sampling in examples by creating only parts of the long matrixes
-    # benchmark and compare memory and time @benchmark
-
-    using Pkg
     using ProgressMeter
 
     using SCS
@@ -17,56 +13,22 @@ module EntropyMaximisation
     export Cone
     export Gradient
     export Ipfp
-    export maximize_entropy
-    export connected_information
 
     export SCSOptimizer
     export MosekOptimizer
 
-    abstract type AbstractOptimizer end
-
-    struct SCSOptimizer <: AbstractOptimizer end
-    struct MosekOptimizer <: AbstractOptimizer end
-
-    include("utils.jl")
+    export maximize_entropy
+    export connected_information
 
     export distribution_entropy
     export permutations_of_length
 
-    struct EMResult
-        entropy::Float64
-        joined_probability::Array{T} where T <: Real
-    end
-
-    EMResult(joined_probability::Array{T}) where T <: Real = EMResult(distribution_entropy(joined_probability), joined_probability)
-
-    Base.show(io::IO, result::EMResult) = print(io, "Entropy: ", result.entropy, "\nDistribution:\n", result.joined_probability)
-
+    include("types.jl")
+    include("utils.jl")
     include("ipfp.jl")
     include("exponentialCone.jl")
+    include("MatlabParser.jl")
     include("projectedGradient.jl")
-
-    abstract type AbstractMethod end
-
-    struct Cone <: AbstractMethod
-        optimizer::AbstractOptimizer
-    end
-
-    Cone() = Cone(SCSOptimizer())
-
-    struct Gradient <: AbstractMethod
-        iterations::Int
-        optimizer::AbstractOptimizer
-    end
-
-    Gradient() = Gradient(10, SCSOptimizer())
-    Gradient(iterations::Int) = Gradient(iterations, SCSOptimizer())
-
-    struct Ipfp <: AbstractMethod
-        iterations::Int
-    end
-
-    Ipfp() = Ipfp(10)    
 
 
     function maximize_entropy(joined_probability::Array{T}, marginal_size; method = Cone())::EMResult where T <: Real 
@@ -112,8 +74,10 @@ module EntropyMaximisation
         max_size = marginal_sizes[end]
         min_size = marginal_sizes[1]
 
-        max_size > ndims(joined_probability) && throw(DomainError("Marginal size cannot be greater than number of dimensions of joined probability"))
-        min_size < 2 && throw(DomainError("Marginal size for connected information cannot be less than 2"))
+        max_size > ndims(joined_probability) && 
+            throw(DomainError("Marginal size cannot be greater than number of dimensions of joined probability"))
+        min_size < 2 && 
+            throw(DomainError("Marginal size for connected information cannot be less than 2"))
 
         set_marginals = Set([marginal_sizes..., (marginal_sizes.-1)...])
         dict_entropies = Dict{Int, Float64}()
