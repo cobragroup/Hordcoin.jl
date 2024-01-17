@@ -27,7 +27,6 @@ module EntropyMaximisation
     include("utils.jl")
     include("ipfp.jl")
     include("exponentialCone.jl")
-    include("MatlabParser.jl")
     include("projectedGradient.jl")
 
     """
