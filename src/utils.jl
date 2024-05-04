@@ -38,6 +38,9 @@ function vecs2tuples(vectors::Array{Vector{T}})::Array{Tuple{Vararg{T}}} where {
 end
 
 function permutations_of_array(arr::Array{Int}, length::Int)::Vector{Vector{Int}}
+    if length == 0
+        return [[]]
+    end
     if length == 1
         return [[i] for i in arr]
     end
@@ -77,7 +80,7 @@ julia> permutations_of_length(1,5)
 function permutations_of_length(length::Int, dims::Int)::Vector{Tuple}
     length > dims && 
         throw(DomainError("Length $length cannot be greater than number of dimensions $dims"))
-    length < 1 && 
-        throw(DomainError("Length $length has to be possitive"))
+    length < 0 && 
+        throw(DomainError("Length $length has to be non-negative"))
     permutations_of_array(collect(1:dims), length) |> vecs2tuples
 end

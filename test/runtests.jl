@@ -38,7 +38,7 @@ using Test
     analytical = 2.811278124459133
 
     @testset "Method $m analytical solution entropy" for m in methods_an
-        result = maximize_entropy(da, 2, method = m)
+        result = maximise_entropy(da, 2, method = m)
         @test isapprox(result.entropy, analytical; atol)
     end
 
@@ -47,9 +47,9 @@ using Test
     dx = [0.25; 0;; 0; 0.25;;; 0; 0.25;; 0.25; 0]
 
     @testset "Method $m XOR entropy" for m in methods_xor
-        result1 = maximize_entropy(dx, 1, method = m)
-        result2 = maximize_entropy(dx, 2, method = m)
-        result3 = maximize_entropy(dx, 3, method = m)
+        result1 = maximise_entropy(dx, 1, method = m)
+        result2 = maximise_entropy(dx, 2, method = m)
+        result3 = maximise_entropy(dx, 3, method = m)
         @test isapprox(result1.entropy, 3; atol)
         @test isapprox(result2.entropy, 3; atol)
         @test isapprox(result3.entropy, 2; atol)

@@ -30,12 +30,12 @@ function project_to_constraints(data, joined_prob::Array{Float64}, marginals; mo
     return value.(p)
 end
 
-function project_with_model(data, joined_prob::Array{Float64}, marginals, optimizer::SCS.Optimizer)::Array{Float64}
-    project_to_constraints(data, joined_prob, marginals; model = Model(typeof(optimizer)))
+function project_with_model(data, joined_prob::Array{Float64}, marginals, optimiser::SCS.Optimizer)::Array{Float64}
+    project_to_constraints(data, joined_prob, marginals; model = Model(typeof(optimiser)))
 end
 
-function project_with_model(data, joined_prob::Array{Float64}, marginals, optimizer::MosekTools.Optimizer)::Array{Float64}
-    project_to_constraints(data, joined_prob, marginals; model = Model(typeof(optimizer)))
+function project_with_model(data, joined_prob::Array{Float64}, marginals, optimiser::MosekTools.Optimizer)::Array{Float64}
+    project_to_constraints(data, joined_prob, marginals; model = Model(typeof(optimiser)))
 end
 
 
@@ -48,7 +48,7 @@ function partial_der_entropy(x::T; default = 10) where {T <: Real}
     return (- log(x) - 1)
 end
 
-function descent(data, marginals; iterations = 1000, optimizer::MathOptInterface.AbstractOptimizer)::EMResult
+function descent(data, marginals; iterations = 1000, optimiser::MathOptInterface.AbstractOptimizer)::EMResult
     step = 0.01
     flat = vec(data)
 
@@ -58,7 +58,7 @@ function descent(data, marginals; iterations = 1000, optimizer::MathOptInterface
     @showprogress for _ in 1:iterations
         flat += step * partial_der_entropy.(flat; default = def)
         flat[flat .< 0] .= 0
-        flat = project_with_model(flat, data, marginals, optimizer)
+        flat = project_with_model(flat, data, marginals, optimiser)
     end
 
     return EMResult(reshape(flat, size(data)))

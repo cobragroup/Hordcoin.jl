@@ -25,17 +25,17 @@ for i in 2:4
     for j in 1:i-1
         println("marginal size ", j)
         println("Cone Mosek")
-        b = @benchmark maximize_entropy($distribution, $j, method = Cone(MosekTools.Optimizer()))
+        b = @benchmark maximise_entropy($distribution, $j, method = Cone(MosekTools.Optimizer()))
         display(b)
         println("Cone SCS")
-        b = @benchmark maximize_entropy($distribution, $j, method = Cone())
+        b = @benchmark maximise_entropy($distribution, $j, method = Cone())
         display(b)
         println("ipfp 10 steps")
-        b = @benchmark maximize_entropy($distribution, $j, method = Ipfp(10))
+        b = @benchmark maximise_entropy($distribution, $j, method = Ipfp(10))
         display(b)
         try
             println("Gradient")
-            b = @benchmark maximize_entropy($distribution, $j, method = Gradient(10))
+            b = @benchmark maximise_entropy($distribution, $j, method = Gradient(10))
             display(b)
         catch e
             println("DomainError")
@@ -48,6 +48,6 @@ distribution = create_distribution(i, 10);
 for j in 1:i-1
     println("marginal size ", j)
     println("Cone Mosek")
-    b = @benchmark maximize_entropy($distribution, $j, method = Cone(MosekTools.Optimizer()))
+    b = @benchmark maximise_entropy($distribution, $j, method = Cone(MosekTools.Optimizer()))
     display(b)
 end
