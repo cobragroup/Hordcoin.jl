@@ -1,5 +1,10 @@
 # utils.jl:
 
+"""
+    entropy(probability::T) where {T<:Real}
+
+Shannon entropy contribution for a single probability value `p` in **bits**. Returns `0` if `p == 0`.
+"""
 function entropy(probability::T) where {T <: Real}
     if probability == 0
         return zero(T)
@@ -8,9 +13,9 @@ function entropy(probability::T) where {T <: Real}
 end
 
 """
-distribution_entropy(distribution::Array{T}) where {T <: Real}
+    distribution_entropy(distribution::Array{<:Real})
 
-Computes entropy of given distribution. All values in distribution have to be non-negative.
+Compute the Shannon entropy (in bits) of a discrete probability distribution. All entries must be nonnegative and sum to ~1.
 
 # Example
 
@@ -33,10 +38,20 @@ function distribution_entropy(distribution::Array{<:Real})
     return sum(entropy, distribution)
 end
 
+"""
+    vecs2tuples(vectors::Array{Vector{T}}) -> Array{Tuple{Vararg{T}}}
+
+Convert an array of vectors into an array of tuples.
+"""
 function vecs2tuples(vectors::Array{Vector{T}})::Array{Tuple{Vararg{T}}} where {T}
     return [Tuple(v) for v in vectors]
 end
 
+"""
+    permutations_of_array(arr::Array{Int}, length::Int) -> Vector{Vector{Int}}
+
+Generate all ascending-order combinations of elements from `arr` of a given length.
+"""
 function permutations_of_array(arr::Array{Int}, length::Int)::Vector{Vector{Int}}
     if length == 0
         return [[]]
@@ -54,9 +69,9 @@ function permutations_of_array(arr::Array{Int}, length::Int)::Vector{Vector{Int}
 end
 
 """
-permutations_of_length(length::Int, dims::Int)::Vector{Tuple} 
+    permutations_of_length(length::Int, dims::Int) -> Vector{Tuple}
 
-Finds all permutations of given size from elements from 1 to `dims` in ascending order.
+Return all ascending-order combinations of size `length` from integers `1:dims`.
 
 # Example
 
