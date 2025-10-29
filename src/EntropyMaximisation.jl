@@ -34,7 +34,7 @@ module EntropyMaximisation
 
     include("types.jl")
     include("utils.jl")
-    include("nsb.jl")
+include("Gcorr.jl")
     include("ipfp.jl")
     include("exponentialCone.jl")
     # Commented due to unavailable data
