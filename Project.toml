@@ -1,6 +1,6 @@
 name = "EntropyMaximisation"
 uuid = "e9d4d5d4-4cae-48c5-8e91-69bea3101049"
-authors = ["Jakub Kislinger"]
+authors = ["Jakub Kislinger", "Giulio Tani Raffaelli", "Tomáš Kroupa", "Jaroslav Hlinka"]
 version = "1.1.0"
 
 [deps]

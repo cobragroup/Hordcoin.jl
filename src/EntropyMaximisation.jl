@@ -354,7 +354,7 @@ function _max_ent(joined_probability::Array{Float64}, marginal_size::Int, method
 	return polymatroid_optim(joined_probability, marginal_size; mle_correction = method.mle_correction, zhang_yeung = method.zhang_yeung, model = Model(() -> method.optimiser))[1]
 end
 
-export connected_information
+# export connected_information
 
 
 
@@ -531,4 +531,6 @@ function _max_entropy_normalized_for_set(normalized_distribution::Array{<:Int}, 
 	end
 	return result
 end
+
+end # module
 
