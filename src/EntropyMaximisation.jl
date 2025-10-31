@@ -444,7 +444,6 @@ function _max_entropy_unnormalized_for_set(unnormalized_distribution::Array{<:In
 	end
 	return result
 end
-end
 
 
 
@@ -476,7 +475,7 @@ Compute connected information for multiple orders using **count data** (normaliz
 
 If a required entropy is `NaN` for some order, a warning is printed and that order is skipped in the result.
 """
-function connected_information(normalized::Array{T}, orders::Vector{Int}, method::RawPolymatroid; precalculated_entropies = Dict{Vector{Int}, Real}())::Tuple{Dict{Int, Float64}, Dict{Int, Float64}} where T <: Real
+function connected_information(normalized::Array{T}, orders::Vector{Int}, method::RawPolymatroid; precalculated_entropies = Dict{Vector{Int}, Real}())::Tuple{Dict{Int, Float64}, Dict{Int, Float64}} where T <: AbstractFloat
 
 	sort!(orders)
 
@@ -508,11 +507,11 @@ function connected_information(normalized::Array{T}, orders::Vector{Int}, method
 	return ret_dict, dict_entropies
 end
 
-function connected_information(normalized::Array{T}, orders::Int, method::RawPolymatroid; precalculated_entropies = Dict{Vector{Int}, Real}())::Tuple{Dict{Int, Float64}, Dict{Int, Float64}} where T <: Real
+function connected_information(normalized::Array{T}, orders::Int, method::RawPolymatroid; precalculated_entropies = Dict{Vector{Int}, Real}())::Tuple{Dict{Int, Float64}, Dict{Int, Float64}} where T <: AbstractFloat
 	return connected_information(normalized, [orders], method; precalculated_entropies = precalculated_entropies)
 end
 
-function _max_entropy_normalized_for_set(normalized_distribution::Array{<:Int}, marginal_size::Set{<:Int}, method::PolymatroidEntropyMethod; precalculated_entropies = Dict{Vector{Int}, Real}())
+function _max_entropy_normalized_for_set(normalized_distribution::Array{<:T}, marginal_size::Set{<:Int}, method::PolymatroidEntropyMethod; precalculated_entropies = Dict{Vector{Int}, Real}()) where T <: AbstractFloat
 	method.joined_probability = normalized_distribution
 	method.mle_correction = 0
 
@@ -522,7 +521,7 @@ function _max_entropy_normalized_for_set(normalized_distribution::Array{<:Int}, 
 	for m in marginal_size
 		val, h, ent, si = polymatroid_most_gen(
 			method,
-			normalized_distribution,
+			Array{Int}(undef, 0, 0),
 			m;
 			precalculated_entropies = ent,
 			set_to_index = si,
