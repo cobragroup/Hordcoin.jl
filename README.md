@@ -1,8 +1,8 @@
-# EntropyMaximisation.jl
+# HORDCOIN.jl
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/cobragroup/EntropyMaximisation/blob/develop/LICENSE)
 
-EntropyMaximisation provides methods for finding probability distributions with maximal Shannon entropy given a fixed marginal distribution or entropy up to a chosen order, and to compute the Connected Information. The package allows the selection of different optimisers.
+HORDCOIN provides methods for finding probability distributions with maximal Shannon entropy given a fixed marginal distribution or entropy up to a chosen order, and to compute the Connected Information. The package allows the selection of different optimisers.
 
 This project was created as a part of the bachelor's thesis "Connected Information from Given Entropies" at the Faculty of Electrical Engineering, Czech Technical University in Prague, and of the paper "COIN: Connected Information Approximation Using Entropic Constraints". See the section [How to cite](#how-to-cite) to cite it appropriately.
 
@@ -47,7 +47,7 @@ It is possible to have complete control on the kind of constraints by passing a 
 
 The basic usage of `connected_information` is the following:
 ```julia
-using EntropyMaximisation
+using HORDCOIN
 
 counts=cat([1 2; 3 4], [4 2; 1 3], dims=3);
 connected_information(counts, 2)
@@ -86,12 +86,12 @@ Other useful parameters for the Polymatroid methods are:
 
 ### Other functions
 
-It is possible to access directly the EntropyMaximisation through the functions `maximise_entropy` for marginal constraints and its sibling function `max_ent_fixed_ent_unnormalized` for the entropic constraints. `maximise_entropy` takes as an input a probability distribution and the order of marginal distributions to constrain. The optimiser is an optional parameter that can have further specified parameters (such as the number of iterations, etc.). The function returns the probability distribution with maximal entropy in the form of `EMResult`.
+It is possible to access directly the HORDCOIN through the functions `maximise_entropy` for marginal constraints and its sibling function `max_ent_fixed_ent_unnormalized` for the entropic constraints. `maximise_entropy` takes as an input a probability distribution and the order of marginal distributions to constrain. The optimiser is an optional parameter that can have further specified parameters (such as the number of iterations, etc.). The function returns the probability distribution with maximal entropy in the form of `EMResult`.
 `max_ent_fixed_ent_unnormalized` takes a multidimensional array of counts and the order up to which the marginal entropies must be fixed. It allows the selection of the plug-in estimator for the entropies or the corrected one. It's possible to pass a precomputed dictionary of entropies to speed up the computation.
 
 The basic usage is the following:
 ```julia
-using EntropyMaximisation
+using HORDCOIN
 
 probability_distribution = [1/16; 3/16;; 3/16; 1/16;;; 1/16; 3/16;; 3/16; 1/16]
 marginal_size = 2

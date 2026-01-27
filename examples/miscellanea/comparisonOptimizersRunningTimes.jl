@@ -1,4 +1,4 @@
-# comparison.jl: Comparison of methods and solvers
+# comparisonOptimizersRunningTimes.jl: Comparison of methods and solvers
 
 using HORDCOIN
 

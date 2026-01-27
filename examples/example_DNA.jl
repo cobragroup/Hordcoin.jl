@@ -1,3 +1,5 @@
+# example_DNA.jl: example with DNA sequences from the associated paper
+
 using HORDCOIN
 using SCS
 

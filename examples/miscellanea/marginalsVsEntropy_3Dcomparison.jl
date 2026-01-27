@@ -1,4 +1,4 @@
-# marginalsVsEntropy.jl: Example for comparing fixing marginal distributions and fixing marginal entropies
+# marginalsVsEntropy_3Dcomparison.jl: Example for comparing fixing marginal distributions and fixing marginal entropies
 
 using HORDCOIN
 using JuMP.Containers: @container

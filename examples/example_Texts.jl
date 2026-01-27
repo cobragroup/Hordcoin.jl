@@ -1,3 +1,5 @@
+# example_Texts.jl: example with texts from the associated paper
+
 using HORDCOIN
 using SCS
 
