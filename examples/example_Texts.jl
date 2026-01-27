@@ -9,15 +9,15 @@ using SCS
 input_file = "path/to/your/ASCII_file.txt"
 input_file = "/home/raffaelli/Texts/deu_news_2023_1M-decoded_sentences.txt"
 
-N_CHAR = 7
+N_CHAR = 27
 NG = 6
 
 function char_to_number(c)
 	n = Int(c) - Int('a')
-	if 0 <= n <= 5
+	if 0 <= n <= 25
 		return n + 1
 	else
-		return 7
+		return 27
 	end
 end
 
