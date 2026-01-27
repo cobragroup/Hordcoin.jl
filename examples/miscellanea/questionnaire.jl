@@ -3,7 +3,7 @@
 
 using EntropyMaximisation
 
-using CSV, DataFrames, BenchmarkTools, Mosek
+using CSV, DataFrames, BenchmarkTools, SCS
 
 # Data from https://archive.ics.uci.edu/dataset/262/turkiye+student+evaluation has to be downloaded and placed in 
 # the folder EntropyMaximisation/resources
@@ -26,15 +26,15 @@ for j in 4:10
 		println("Raw polymatroid CSC")
 		b = @benchmark max_ent_fixed_ent($distribution, $i, RawPolymatroid())
 		display(b)
-		println("Raw polymatroid Mosek")
-		b = @benchmark max_ent_fixed_ent($distribution, $i, RawPolymatroid($0.0, $false, $Mosek.Optimizer()))
+		println("Raw polymatroid SCS")
+		b = @benchmark max_ent_fixed_ent($distribution, $i, RawPolymatroid($0.0, $false, $SCS.Optimizer()))
 		display(b)
 		if (j >= 4)
 			println("Raw polymatroid CSC Zhang-Yeung")
 			b = @benchmark max_ent_fixed_ent($distribution, $i, RawPolymatroid($true))
 			display(b)
-			println("Raw polymatroid Mosek Zhang-Yeung")
-			b = @benchmark max_ent_fixed_ent($distribution, $i, RawPolymatroid($0.0, $true, $Mosek.Optimizer()))
+			println("Raw polymatroid SCS Zhang-Yeung")
+			b = @benchmark max_ent_fixed_ent($distribution, $i, RawPolymatroid($0.0, $true, $SCS.Optimizer()))
 			display(b)
 		end
 	end
@@ -57,15 +57,15 @@ for j in 2:4
 		println("Raw polymatroid CSC")
 		b = @benchmark max_ent_fixed_ent_unnormalized($distribution, $i, GPolymatroid())
 		display(b)
-		println("Raw polymatroid Mosek")
-		b = @benchmark max_ent_fixed_ent_unnormalized($distribution, $i, GPolymatroid($false, $Mosek.Optimizer(), $0))
+		println("Raw polymatroid SCS")
+		b = @benchmark max_ent_fixed_ent_unnormalized($distribution, $i, GPolymatroid($false, $SCS.Optimizer(), $0))
 		display(b)
 		if (j >= 4)
 			println("Raw polymatroid CSC Zhang-Yeung")
 			b = @benchmark max_ent_fixed_ent_unnormalized($distribution, $i, GPolymatroid($true))
 			display(b)
-			println("Raw polymatroid Mosek Zhang-Yeung")
-			b = @benchmark max_ent_fixed_ent_unnormalized($distribution, $i, GPolymatroid($true, $Mosek.Optimizer(), $0))
+			println("Raw polymatroid SCS Zhang-Yeung")
+			b = @benchmark max_ent_fixed_ent_unnormalized($distribution, $i, GPolymatroid($true, $SCS.Optimizer(), $0))
 			display(b)
 		end
 	end
@@ -86,7 +86,7 @@ for i in 2:j
 	print("Direct ")
 	println(max_ent_fixed_ent_unnormalized(distribution, i, Direct()))
 	print("Raw polymatroid CSC ")
-	println(max_ent_fixed_ent_unnormalized(distribution, i, RawPolymatroid(0.0, false, Mosek.Optimizer())))
+	println(max_ent_fixed_ent_unnormalized(distribution, i, RawPolymatroid(0.0, false, SCS.Optimizer())))
 end
 
 
@@ -100,11 +100,11 @@ for x in eachrow(data)
 	distribution[x...] += 1
 end
 
-method = RawPolymatroid(0.0, false, Mosek.Optimizer());
+method = RawPolymatroid(0.0, false, SCS.Optimizer());
 
 dic = connected_information(distribution, collect(2:8); method)[1]
 
-method = RawPolymatroid(0.0, true, Mosek.Optimizer());
+method = RawPolymatroid(0.0, true, SCS.Optimizer());
 
 dic_zy = connected_information(distribution, collect(2:8); method)[1]
 

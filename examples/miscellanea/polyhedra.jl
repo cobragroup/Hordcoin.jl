@@ -3,7 +3,7 @@
 using EntropyMaximisation
 
 using DataFrames
-using Mosek
+using SCS
 
 # Comparison
 
@@ -17,8 +17,8 @@ fpn_orig = load_data("fpn_results", n)
 
 distribution = zeros([n for i in 1:j]...);
 
-for x in eachrow(fpn_orig[:, 1:j]);
-    distribution[x...] += 1;
+for x in eachrow(fpn_orig[:, 1:j])
+	distribution[x...] += 1
 end
 
 distribution = distribution ./ sum(distribution);
@@ -47,15 +47,15 @@ ent_3_zy = map(x -> x[index_3_zy], vertices_3_zy)
 max_ent_1, id_max_1 = findmax(ent_1)
 max_ent_1_zy, id_max_1_zy = findmax(ent_1_zy)
 # Control of optimisation using polymatroid entropy method
-max_ent_fixed_ent(distribution, 1, RawPolymatroid(0.0, false, Mosek.Optimizer()))
+max_ent_fixed_ent(distribution, 1, RawPolymatroid(0.0, false, SCS.Optimizer()))
 
 max_ent_2, id_max_2 = findmax(ent_2)
 max_ent_2_zy, id_max_2_zy = findmax(ent_2_zy)
-max_ent_fixed_ent(distribution, 2, RawPolymatroid(0.0, false, Mosek.Optimizer()))
+max_ent_fixed_ent(distribution, 2, RawPolymatroid(0.0, false, SCS.Optimizer()))
 
 max_ent_3, id_max_3 = findmax(ent_3)
 max_ent_3_zy, id_max_3_zy = findmax(ent_3_zy)
-max_ent_fixed_ent(distribution, 3, RawPolymatroid(0.0, false, Mosek.Optimizer()))
+max_ent_fixed_ent(distribution, 3, RawPolymatroid(0.0, false, SCS.Optimizer()))
 
 # Fail in comparison means that for fixing marginal entropies of size 1 Zhang-Yeung inequalities 
 # change the polymatroid (different number of verticies), but as could be already seen, not the maximum

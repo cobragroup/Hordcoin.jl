@@ -1,12 +1,12 @@
 # totalCorrelation.jl: Total correlation of data from
 # Martin, E. A., Hlinka, J., Meinke, A., Děchtěrenko, F., Tintěra, J., Oliver, I., & Davidsen, J. (2017). Network Inference and Maximum Entropy Estimation on Information Diagrams. Scientific Reports, 7(1), 7062. https://doi.org/10.1038/s41598-017-06208-w
-# data can available on request
+# data available on request
 
 using EntropyMaximisation
 
 using Statistics
 
-using Mosek
+using SCS
 
 
 fpn_orig_2 = load_data("fpn_results", 2)
@@ -44,7 +44,7 @@ un_dmn_4 = create_unnormalised_distribution(dmn_orig_4, 4);
 un_dmn_5 = create_unnormalised_distribution(dmn_orig_5, 5);
 
 
-method = RawPolymatroid(0.0, false, Mosek.Optimizer())
+method = RawPolymatroid(0.0, false, SCS.Optimizer())
 
 # Calculating connected information (ci_raw_...) and maximal entropies with fixed marginal entropies (max_raw_...)
 # using empirical distribution for entropy estimating
@@ -101,7 +101,7 @@ ent_G_dmn_3 = deserialize(resource_path * "ent_G_dmn_3.dat")
 ent_G_dmn_4 = deserialize(resource_path * "ent_G_dmn_4.dat")
 ent_G_dmn_5 = deserialize(resource_path * "ent_G_dmn_5.dat")
 
-method = GPolymatroid(false, Mosek.Optimizer(), 0.01)
+method = GPolymatroid(false, SCS.Optimizer(), 0.01)
 
 # Calculating connected information (ci_G_...) and maximal entropies with fixed marginal entropies (max_G_...)
 # using Grassberger estimator for entropy estimating
