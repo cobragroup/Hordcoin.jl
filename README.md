@@ -86,7 +86,7 @@ Other useful parameters for the Polymatroid methods are:
 
 ### Other functions
 
-It is possible to access directly the HORDCOIN through the functions `maximise_entropy` for marginal constraints and its sibling function `max_ent_fixed_ent_unnormalized` for the entropic constraints. `maximise_entropy` takes as an input a probability distribution and the order of marginal distributions to constrain. The optimiser is an optional parameter that can have further specified parameters (such as the number of iterations, etc.). The function returns the probability distribution with maximal entropy in the form of `EMResult`.
+It is possible to access directly the entropy maximisation through the functions `maximise_entropy` for marginal constraints and its sibling function `max_ent_fixed_ent_unnormalized` for the entropic constraints. `maximise_entropy` takes as an input a probability distribution and the order of marginal distributions to constrain. The optimiser is an optional parameter that can have further specified parameters (such as the number of iterations, etc.). The function returns the probability distribution with maximal entropy in the form of `EMResult`.
 `max_ent_fixed_ent_unnormalized` takes a multidimensional array of counts and the order up to which the marginal entropies must be fixed. It allows the selection of the plug-in estimator for the entropies or the corrected one. It's possible to pass a precomputed dictionary of entropies to speed up the computation.
 
 The basic usage is the following:
