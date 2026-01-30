@@ -16,9 +16,9 @@ Moreover, in case of undersampled distributions, it is possible to use a built-i
 
 
 ## Installation
-The package is not registered, but can be installed in the following way:
+The package is registered, it can be installed by simply:
 ```julia
-pkg> add https://github.com/cobragroup/HORDCOIN.git
+pkg> add HORDCOIN
 ```
 
 ## Usage
