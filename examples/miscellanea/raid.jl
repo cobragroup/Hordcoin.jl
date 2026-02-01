@@ -1,6 +1,6 @@
 # raid.jl: RAID 6 examples
 
-using HORDCOIN
+using Hordcoin
 
 using SCS
 

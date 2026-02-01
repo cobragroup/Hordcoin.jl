@@ -1,6 +1,6 @@
 # marginalsVsEntropy_3Dcomparison.jl: Example for comparing fixing marginal distributions and fixing marginal entropies
 
-using HORDCOIN
+using Hordcoin
 using JuMP.Containers: @container
 
 p2 = @container([x1 = [0, 1, 2, 3], x2 = [0, 1, 2, 3], x3 = [0, 1, 2, 3]], 0.0)

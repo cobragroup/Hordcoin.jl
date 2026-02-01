@@ -1,6 +1,6 @@
 # polyhedra.jl: Showing effects of Zhang-Yeung inequalities
 
-using HORDCOIN
+using Hordcoin
 
 using DataFrames
 using SCS

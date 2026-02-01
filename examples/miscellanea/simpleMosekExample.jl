@@ -1,6 +1,6 @@
 # simpleMosekExample.jl:
 
-using HORDCOIN
+using Hordcoin
 using MosekTools
 using JuMP.Containers: @container
 

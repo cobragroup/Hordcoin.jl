@@ -1,6 +1,6 @@
 # example_Texts.jl: example with texts from the associated paper
 
-using HORDCOIN
+using Hordcoin
 using SCS
 
 # If your file does not use ASCII encoding (or UTF-8 limited to the ASCII subset),

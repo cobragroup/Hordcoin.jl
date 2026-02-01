@@ -2,7 +2,7 @@
 # Martin, E. A., Hlinka, J., Meinke, A., Děchtěrenko, F., Tintěra, J., Oliver, I., & Davidsen, J. (2017). Network Inference and Maximum Entropy Estimation on Information Diagrams. Scientific Reports, 7(1), 7062. https://doi.org/10.1038/s41598-017-06208-w
 # data available on request
 
-using HORDCOIN
+using Hordcoin
 
 using Statistics
 
@@ -61,7 +61,7 @@ ci_raw_dmn_5, max_raw_dmn_5 = connected_information(un_dmn_5, collect(2:10); met
 
 
 using Serialization
-resource_path = abspath("HORDCOIN/resources/")
+resource_path = abspath("Hordcoin/resources/")
 
 
 # Precomputing entropies, takes more than 1 hour

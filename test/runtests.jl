@@ -1,9 +1,9 @@
-# test/runtests.jl: Tests for package HORDCOIN
+# test/runtests.jl: Tests for package Hordcoin
 
-using HORDCOIN
+using Hordcoin
 using Test
 
-@testset "HORDCOIN.jl" begin
+@testset "Hordcoin.jl" begin
 
 	atol = 1e-4
 

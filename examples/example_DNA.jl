@@ -1,6 +1,6 @@
 # example_DNA.jl: example with DNA sequences from the associated paper
 
-using HORDCOIN
+using Hordcoin
 using SCS
 
 # This is a simplified version of the code used in the paper. 

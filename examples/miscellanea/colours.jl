@@ -1,7 +1,7 @@
 using Pkg
 Pkg.activate("examples/")
 using Revise
-using HORDCOIN
+using Hordcoin
 using Random
 
 ## Colours

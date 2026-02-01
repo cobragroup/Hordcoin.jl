@@ -1,13 +1,13 @@
 # questionnaire.jl: Benchmark and comparison of different methods on a real dataset
 # Computation of connected information of a questionnaire
 
-using HORDCOIN
+using Hordcoin
 
 using CSV, DataFrames, BenchmarkTools, SCS
 
 # Data from https://archive.ics.uci.edu/dataset/262/turkiye+student+evaluation has to be downloaded and placed in 
-# the folder HORDCOIN/resources
-df = CSV.read(pwd() * "/HORDCOIN/resources/turkiye-student-evaluation_generic.csv", header = true, DataFrame)
+# the folder Hordcoin/resources
+df = CSV.read(pwd() * "/Hordcoin/resources/turkiye-student-evaluation_generic.csv", header = true, DataFrame)
 
 # Benchmark of different methods using empirical distribution for estimating entropy
 for j in 4:10

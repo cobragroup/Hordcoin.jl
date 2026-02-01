@@ -1,8 +1,8 @@
-# HORDCOIN.jl
+# Hordcoin.jl
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/cobragroup/hordcoin.jl/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/cobragroup/Hordcoin.jl/blob/main/LICENSE)
 
-hordcoin provides methods for finding probability distributions with maximal Shannon entropy given a fixed marginal distribution or entropy up to a chosen order, and to compute the Connected Information. The package allows the selection of different optimisers.
+Hordcoin provides methods for finding probability distributions with maximal Shannon entropy given a fixed marginal distribution or entropy up to a chosen order, and to compute the Connected Information. The package allows the selection of different optimisers.
 
 This project was created as a part of the bachelor's thesis "Connected Information from Given Entropies" at the Faculty of Electrical Engineering, Czech Technical University in Prague, and of the paper "HORDCOIN: A Software Library for Higher Order Connected Information and Entropic Constraints Approximation". See the section [How to cite](#how-to-cite) to cite it appropriately.
 
@@ -18,7 +18,7 @@ Moreover, in case of undersampled distributions, it is possible to use a built-i
 ## Installation
 The package is registered, it can be installed by simply:
 ```julia
-pkg> add hordcoin
+pkg> add Hordcoin
 ```
 
 ## Usage
@@ -47,7 +47,7 @@ It is possible to have complete control on the kind of constraints by passing a 
 
 The basic usage of `connected_information` is the following:
 ```julia
-using hordcoin
+using Hordcoin
 
 counts=cat([1 2; 3 4], [4 2; 1 3], dims=3);
 connected_information(counts, 2)
@@ -91,7 +91,7 @@ It is possible to access directly the entropy maximisation through the functions
 
 The basic usage is the following:
 ```julia
-using hordcoin
+using Hordcoin
 
 probability_distribution = [1/16; 3/16;; 3/16; 1/16;;; 1/16; 3/16;; 3/16; 1/16]
 marginal_size = 2

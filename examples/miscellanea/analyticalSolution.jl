@@ -1,6 +1,6 @@
-# analyticalSolution.jl: Example for comparing analytical solution and HORDCOIN package
+# analyticalSolution.jl: Example for comparing analytical solution and Hordcoin package
 
-using HORDCOIN
+using Hordcoin
 using Pkg: Pkg
 Pkg.add("JuMP")
 using JuMP.Containers: @container

@@ -1,6 +1,6 @@
-# hordcoin.jl:
+# Hordcoin.jl:
 
-module hordcoin
+module Hordcoin
 
 using ProgressMeter
 

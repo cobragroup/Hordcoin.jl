@@ -1,6 +1,6 @@
 # example_ContinuousGaussian.jl: example with continuous Gaussian distribution from the associated paper
 
-using HORDCOIN
+using Hordcoin
 using SCS
 using LinearAlgebra
 
