@@ -384,7 +384,7 @@ Compute connected information for multiple orders using **count data** (unnormal
 
 If a required entropy is `NaN` for some order, a warning is printed and that order is skipped in the result.
 """
-function connected_information(unnormalized::Array{Int}, orders::Vector{Int}, method::PolymatroidEntropyMethod = RawPolymatroid(); precalculated_entropies = Dict{Vector{Int}, Real}())::Tuple{Dict{Int, Float64}, Dict{Int, Float64}}
+function connected_information(unnormalized::Array{Int}, orders::Vector{Int}, method::AbstractEntropyMethod = RawPolymatroid(); precalculated_entropies = Dict{Vector{Int}, Real}())::Tuple{Dict{Int, Float64}, Dict{Int, Float64}}
 
 	sort!(orders)
 
@@ -444,6 +444,15 @@ function _max_entropy_unnormalized_for_set(unnormalized_distribution::Array{<:In
 	return result
 end
 
+function _max_entropy_unnormalized_for_set(unnormalized_distribution::Array{<:Int}, marginal_size::Set{<:Int}, method::Direct; precalculated_entropies = Dict())
+	result = Dict{Int, Float64}()
+	for m in marginal_size
+		emresult = _max_ent_unnormalized(unnormalized_distribution, m, method; precalculated_entropies)
+		result[m] = emresult.entropy
+	end
+	return result
+end
+
 
 
 """
@@ -474,8 +483,10 @@ Compute connected information for multiple orders using **count data** (normaliz
 
 If a required entropy is `NaN` for some order, a warning is printed and that order is skipped in the result.
 """
-function connected_information(normalized::Array{T}, orders::Vector{Int}, method::RawPolymatroid; precalculated_entropies = Dict{Vector{Int}, Real}())::Tuple{Dict{Int, Float64}, Dict{Int, Float64}} where T <: AbstractFloat
-
+function connected_information(normalized::Array{T}, orders::Vector{Int}, method::AbstractEntropyMethod; precalculated_entropies = Dict{Vector{Int}, Real}())::Tuple{Dict{Int, Float64}, Dict{Int, Float64}} where T <: AbstractFloat
+	if ! ((method isa RawPolymatroid) || (method isa Direct))
+		throw(DomainError("Method must be either RawPolymatroid or Direct"))
+	end
 	sort!(orders)
 
 	max_size = orders[end]
@@ -510,7 +521,7 @@ function connected_information(normalized::Array{T}, orders::Int, method::RawPol
 	return connected_information(normalized, [orders], method; precalculated_entropies = precalculated_entropies)
 end
 
-function _max_entropy_normalized_for_set(normalized_distribution::Array{<:T}, marginal_size::Set{<:Int}, method::PolymatroidEntropyMethod; precalculated_entropies = Dict{Vector{Int}, Real}()) where T <: AbstractFloat
+function _max_entropy_normalized_for_set(normalized_distribution::Array{<:T}, marginal_size::Set{<:Int}, method::RawPolymatroid; precalculated_entropies = Dict{Vector{Int}, Real}()) where T <: AbstractFloat
 	method.joined_probability = normalized_distribution
 	method.mle_correction = 0
 
@@ -527,6 +538,15 @@ function _max_entropy_normalized_for_set(normalized_distribution::Array{<:T}, ma
 			set_to_index = si,
 		)
 		result[m] = val
+	end
+	return result
+end
+
+function _max_entropy_normalized_for_set(normalized_distribution::Array{<:T}, marginal_size::Set{<:Int}, method::Direct; precalculated_entropies = Dict()) where T <: AbstractFloat
+	result = Dict{Int, Float64}()
+	for m in marginal_size
+		emresult = _max_ent(unnormalized_distribution, m, method)
+		result[m] = emresult.entropy
 	end
 	return result
 end
