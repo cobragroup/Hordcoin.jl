@@ -158,4 +158,11 @@ using Test
 		@test precompute_entropies(dx, RawPolymatroid()) isa Dict{Vector{Int64},Real}
 		@test_throws MethodError precompute_entropies(dx, GPolymatroid())
 	end
+
+	@testset "Test defaults" begin
+		@test maximise_entropy(dx, 1) isa EMResult
+		@test maximise_entropy(ax, 1) isa EMFMEResult
+		@test !isapprox(connected_information(ax, 3)[1][3], 1; atol=1e-5)
+		@test isapprox(connected_information(dx, 3)[1][3], 1; atol=1e-5)
+	end
 end;

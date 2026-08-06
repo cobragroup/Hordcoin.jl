@@ -55,7 +55,7 @@ end
 
 Generate all ascending-order combinations of elements from `arr` of a given length.
 """
-function permutations_of_array(arr::Array{Int}, length::Int)::Vector{Vector{Int}}
+function permutations_of_array(arr::Array{<:Integer}, length::Int)::Vector{Vector{Int}}
     if length == 0
         return [[]]
     end

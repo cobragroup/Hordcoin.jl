@@ -1,50 +1,50 @@
 # exponentialCone.jl:
 
 """
-	cone_for_optimiser(joined_prob::Array{Float64}, marginals, optimiser::SCS.Optimizer) -> EMResult
+	cone_for_optimiser(joint_probability::Array{Float64}, marginals, optimiser::SCS.Optimizer) -> EMResult
 
-Run the exponential-cone formulation using SCS to find a maximum-entropy distribution whose specified marginals match those of `joined_prob`.
+Run the exponential-cone formulation using SCS to find a maximum-entropy distribution whose specified marginals match those of `joint_probability`.
 
 # Parameters
-- `joined_prob`: N‑dimensional joint probability table (nonnegative, sums ≈ 1).
+- `joint_probability`: N‑dimensional joint probability table (nonnegative, sums ≈ 1).
 - `marginals`: Collection of index tuples (e.g. `[(1,), (2,), (1,2)]`) indicating which marginals to fix.
 - `optimiser`: An `SCS.Optimizer` instance (its type is used to build the JuMP `Model`).
 """
-function cone_for_optimiser(joined_prob::Array{Float64}, marginals, optimiser::SCS.Optimizer)::EMResult
-	cone_over_probabilities(joined_prob, marginals; model = Model(typeof(optimiser)))
+function cone_for_optimiser(joint_probability::Array{<:AbstractFloat}, marginals::Vector{Tuple}, optimiser::SCS.Optimizer)::EMResult
+	cone_over_probabilities(joint_probability, marginals; model = Model(typeof(optimiser)))
 end
 
 """
-	cone_for_optimiser(joined_prob::Array{Float64}, marginals, optimiser::MosekTools.Optimizer) -> EMResult
+	cone_for_optimiser(joint_probability::Array{Float64}, marginals, optimiser::MosekTools.Optimizer) -> EMResult
 
 Same as `cone_for_optimiser` but using Mosek’s exponential-cone solver.
 
 # Parameters
-- `joined_prob`: Joint probability table.
+- `joint_probability`: Joint probability table.
 - `marginals`: Tuples of dimensions to match as marginals.
 - `optimiser`: A `MosekTools.Optimizer` instance (type is used to build the `Model`).
 """
-function cone_for_optimiser(joined_prob::Array{Float64}, marginals, optimiser::MosekTools.Optimizer)::EMResult
-	cone_over_probabilities(joined_prob, marginals; model = Model(typeof(optimiser)))
+function cone_for_optimiser(joint_probability::Array{<:AbstractFloat}, marginals::Vector{Tuple}, optimiser::MosekTools.Optimizer)::EMResult
+	cone_over_probabilities(joint_probability, marginals; model = Model(typeof(optimiser)))
 end
 
 
 """
-	cone_over_probabilities(joined_prob::Array{Float64}, marginals; model::Model = Model(SCS.Optimizer)) -> EMResult
+	cone_over_probabilities(joint_probability::Array{Float64}, marginals; model::Model = Model(SCS.Optimizer)) -> EMResult
 
-Build and solve the **exponential‑cone** program that maximizes Shannon entropy subject to the given marginal constraints from `joined_prob`.
+Build and solve the **exponential‑cone** program that maximizes Shannon entropy subject to the given marginal constraints from `joint_probability`.
 
 # Parameters
-- `joined_prob`: N‑dimensional joint probability table.
+- `joint_probability`: N‑dimensional joint probability table.
 - `marginals`: Collection of index tuples specifying the marginals to enforce.
 - `model`: JuMP model to use (defaults to SCS). Only the optimizer type is required.
 """
-function cone_over_probabilities(joined_prob::Array{Float64}, marginals; model::Model = Model(SCS.Optimizer))::EMResult
+function cone_over_probabilities(joint_probability::Array{<:AbstractFloat}, marginals::Vector{Tuple}; model::Model = Model(SCS.Optimizer))::EMResult
 
 	# defines the complement of a set of dimension
-	~(s::Tuple) = (i for i ∈ 1:ndims(joined_prob) if i ∉ s)
+	~(s::Tuple) = (i for i ∈ 1:ndims(joint_probability) if i ∉ s)
 
-	n = length(joined_prob)
+	n = length(joint_probability)
 
 	set_silent(model)
 
@@ -52,11 +52,11 @@ function cone_over_probabilities(joined_prob::Array{Float64}, marginals; model::
 	@variable(model, p[1:n] >= 0)
 	@constraint(model, sum(p) == 1)
 
-	q = reshape(p, size(joined_prob)...)
+	q = reshape(p, size(joint_probability)...)
 
 
 	# Sum over the complement of a set of dimension must be equal to the sum of the result probabilities
-	@constraint(model, [m in marginals], sum(joined_prob, dims = ~(m)) .== sum(q, dims = ~(m)))
+	@constraint(model, [m in marginals], sum(joint_probability, dims = ~(m)) .== sum(q, dims = ~(m)))
 
 
 	# Max ent. reformulation
@@ -71,43 +71,43 @@ function cone_over_probabilities(joined_prob::Array{Float64}, marginals; model::
 end
 
 """
-	nlp_entropies_for_optimiser(joined_prob::Array{Float64}, marginal_size, optimiser::String) -> EMResult
+	nlp_entropies_for_optimiser(joint_probability::Array{Float64}, marginal_size, optimiser::String) -> EMResult
 
 Dispatch to a nonlinear program (NLP) that fixes marginal **entropies** up to order `marginal_size`, using either `ipopt` or `madnlp`.
 
 # Parameters
-- `joined_prob`: Joint probability table.
+- `joint_probability`: Joint probability table.
 - `marginal_size`: Largest order of marginals whose entropy is constrained.
 - `optimiser`: One of `"ipopt"` or `"madnlp"`.
 """
-function nlp_entropies_for_optimiser(joined_prob::Array{Float64}, marginal_size, optimiser::String)::EMResult
+function nlp_entropies_for_optimiser(joint_probability::Array{<:AbstractFloat}, marginal_size, optimiser::String)::EMResult
 	if (optimiser == "ipopt")
-		return nlp_fixed_entropies(joined_prob, marginal_size, model = Model(Ipopt.Optimizer))
+		return nlp_fixed_entropies(joint_probability, marginal_size, model = Model(Ipopt.Optimizer))
 	elseif (optimiser == "madnlp")
-		return nlp_fixed_entropies(joined_prob, marginal_size, model = Model(MadNLP.Optimizer))
+		return nlp_fixed_entropies(joint_probability, marginal_size, model = Model(MadNLP.Optimizer))
 	else
 		throw(ArgumentError("Invalid optimiser $optimiser. Choose between 'ipopt' and 'madnlp'"))
 	end
 end
 
 """
-	nlp_fixed_entropies(joined_prob::Array{Float64}, marginal_size; model::Model = Model(Ipopt.Optimizer)) -> EMResult
+	nlp_fixed_entropies(joint_probability::Array{Float64}, marginal_size; model::Model = Model(Ipopt.Optimizer)) -> EMResult
 
-Solve a JuMP NLP that maximizes entropy while **matching the entropies** of all marginals up to size `marginal_size` to those of `joined_prob`.
+Solve a JuMP NLP that maximizes entropy while **matching the entropies** of all marginals up to size `marginal_size` to those of `joint_probability`.
 
 # Parameters
-- `joined_prob`: N‑dimensional joint probability table.
+- `joint_probability`: N‑dimensional joint probability table.
 - `marginal_size`: Largest marginal size whose entropy is fixed.
 - `model`: JuMP model to use (defaults to Ipopt).
 """
-function nlp_fixed_entropies(joined_prob::Array{Float64}, marginal_size; model::Model = Model(Ipopt.Optimizer))::EMResult
+function nlp_fixed_entropies(joint_probability::Array{<:AbstractFloat}, marginal_size; model::Model = Model(Ipopt.Optimizer))::EMResult
 
-	num_dimensions = ndims(joined_prob)
+	num_dimensions = ndims(joint_probability)
 
 	# defines the complement of a set of dimension
 	~(s) = (i for i ∈ 1:num_dimensions if i ∉ s)
 
-	n = length(joined_prob)
+	n = length(joint_probability)
 
 	set_silent(model)
 
@@ -115,14 +115,14 @@ function nlp_fixed_entropies(joined_prob::Array{Float64}, marginal_size; model::
 	@variable(model, p[1:n] >= 0)
 	@constraint(model, sum(p) == 1)
 
-	q = reshape(p, size(joined_prob)...)
+	q = reshape(p, size(joint_probability)...)
 
 	for i in 1:marginal_size
 		entropies = permutations_of_length(i, num_dimensions)
 		for ent in eachcol(entropies)
 			d = Tuple(collect(~(ent)))
 
-			par_prob = dropdims(sum(joined_prob, dims = d), dims = d)
+			par_prob = dropdims(sum(joint_probability, dims = d), dims = d)
 			model_prob = dropdims(sum(q, dims = d), dims = d)
 
 			val = sum(par_prob[i] * log2(par_prob[i]) for i in 1:length(par_prob))

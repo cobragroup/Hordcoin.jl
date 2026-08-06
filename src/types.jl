@@ -9,17 +9,17 @@ Holds the result of an entropy maximisation, storing the computed entropy value 
 
 # Parameters
 - `entropy::Float64`: The computed entropy value.
-- `joined_probability::Array{T}`: The joint probability distribution.
+- `joint_probability::Array{T}`: The joint probability distribution.
 """
 struct EMResult <: EResult
 	entropy::Float64
-	joined_probability::Array{T} where T <: Real
+	joint_probability::Array{T} where T <: Real
 end
 
-EMResult(joined_probability::Array{T}) where T <: Real =
-	EMResult(distribution_entropy(joined_probability), joined_probability)
+EMResult(joint_probability::Array{T}) where T <: Real =
+	EMResult(distribution_entropy(joint_probability), joint_probability)
 Base.show(io::IO, result::EMResult) =
-	print(io, "Entropy: ", result.entropy, "\nDistribution:\n", result.joined_probability)
+	print(io, "Entropy: ", result.entropy, "\nDistribution:\n", result.joint_probability)
 
 """
 Holds the result of an entropy maximisation with fixed marginal entropies, storing the computed entropy value and the corresponding marginal entropies.
