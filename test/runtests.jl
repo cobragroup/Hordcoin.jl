@@ -56,12 +56,37 @@ using Test
 	end
 
 	@testset "Method $m XOR connected information" for m in methods_xor
-		result2 = connected_information(dx, 2, method = m)
-		result3 = connected_information(dx, 3, method = m)
-		result_dic = connected_information(dx, [2, 3], method = m)
+		result2 = connected_information(dx, 2, m)
+		result3 = connected_information(dx, 3, m)
+		result_dic = connected_information(dx, [2, 3], m)
 		@test isapprox(result2, 0; atol)
 		@test isapprox(result3, 1; atol)
 		@test isapprox(result_dic[2], 0; atol)
 		@test isapprox(result_dic[3], 1; atol)
 	end
+
+	ax = [1000; 0;; 0; 1000;;; 0; 1000;; 1000; 0]
+	methods_xor2 = [Direct(), RawPolymatroid(), GPolymatroid()]
+	etol=1e-2
+	@testset "Method $m XOR entropy" for m in methods_xor2
+		result1 = max_ent_fixed_ent_unnormalized(ax, 1, m)
+		result2 = max_ent_fixed_ent_unnormalized(ax, 2, m)
+		result3 = max_ent_fixed_ent_unnormalized(ax, 3, m)
+		@test isapprox(result1.entropy, 3, atol=etol)
+		@test isapprox(result2.entropy, 3, atol=etol)
+		@test isapprox(result3.entropy, 2, atol=etol)
+	end
+	
+	@testset "Method $m XOR connected information" for m in methods_xor2
+		result2 = connected_information(ax, 2, m)[1][2]
+		result3 = connected_information(ax, 3, m)[1][3]
+		result_dic = connected_information(ax, [2, 3], m)
+		@test isapprox(result2, 0, atol=etol)
+		@test isapprox(result3, 1, atol=etol)
+		@test isapprox(result_dic[1][2], 0, atol=etol)
+		@test isapprox(result_dic[1][3], 1, atol=etol)
+		@test isapprox(result_dic[2][2], 3, atol=etol)
+		@test isapprox(result_dic[2][3], 2, atol=etol)
+	end
+
 end;

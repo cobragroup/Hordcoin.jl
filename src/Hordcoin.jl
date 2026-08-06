@@ -430,7 +430,7 @@ function connected_information(unnormalized::Array{Int}, orders::Vector{Int}, me
 	return ret_dict, dict_entropies
 end
 
-function connected_information(unnormalized::Array{Int}, orders::Int, method::PolymatroidEntropyMethod = RawPolymatroid(); precalculated_entropies = Dict{Vector{Int}, Real}())::Tuple{Dict{Int, Float64}, Dict{Int, Float64}}
+function connected_information(unnormalized::Array{Int}, orders::Int, method::AbstractEntropyMethod = RawPolymatroid(); precalculated_entropies = Dict{Vector{Int}, Real}())::Tuple{Dict{Int, Float64}, Dict{Int, Float64}}
 	return connected_information(unnormalized, [orders], method; precalculated_entropies = precalculated_entropies)
 end
 
