@@ -38,18 +38,20 @@ using Test
 	analytical = 2.811278124459133
 
 	@testset "Method $m analytical solution entropy" for m in methods_an
-		result = maximise_entropy(da, 2, method = m)
+		result = maximise_entropy(da, 2, m)
 		@test isapprox(result.entropy, analytical; atol)
 	end
+	
+	dx = [0.25; 0;; 0; 0.25;;; 0; 0.25;; 0.25; 0]
+	ax = [1000; 0;; 0; 1000;;; 0; 1000;; 1000; 0]
 
+	# Test fixed marginal distributions
 	methods_xor = [Cone(), Ipfp(10), Gradient(100)]
 
-	dx = [0.25; 0;; 0; 0.25;;; 0; 0.25;; 0.25; 0]
-
 	@testset "Method $m XOR entropy" for m in methods_xor
-		result1 = maximise_entropy(dx, 1, method = m)
-		result2 = maximise_entropy(dx, 2, method = m)
-		result3 = maximise_entropy(dx, 3, method = m)
+		result1 = maximise_entropy(dx, 1, m)
+		result2 = maximise_entropy(dx, 2, m)
+		result3 = maximise_entropy(dx, 3, m)
 		@test isapprox(result1.entropy, 3; atol)
 		@test isapprox(result2.entropy, 3; atol)
 		@test isapprox(result3.entropy, 2; atol)
@@ -65,28 +67,81 @@ using Test
 		@test isapprox(result_dic[1][3], 1; atol)
 	end
 
-	ax = [1000; 0;; 0; 1000;;; 0; 1000;; 1000; 0]
-	methods_xor2 = [Direct(), RawPolymatroid(), GPolymatroid()]
-	etol=1e-2
-	@testset "Method $m XOR entropy" for m in methods_xor2
-		result1 = max_ent_fixed_ent(ax, 1, m)
-		result2 = max_ent_fixed_ent(ax, 2, m)
-		result3 = max_ent_fixed_ent(ax, 3, m)
-		@test isapprox(result1.entropy, 3, atol=etol)
-		@test isapprox(result2.entropy, 3, atol=etol)
-		@test isapprox(result3.entropy, 2, atol=etol)
+	@testset "Method $m XOR entropy" for m in methods_xor
+		result1 = maximise_entropy(ax, 1, m)
+		result2 = maximise_entropy(ax, 2, m)
+		result3 = maximise_entropy(ax, 3, m)
+		@test isapprox(result1.entropy, 3; atol)
+		@test isapprox(result2.entropy, 3; atol)
+		@test isapprox(result3.entropy, 2; atol)
 	end
 	
-	@testset "Method $m XOR connected information" for m in methods_xor2
+	@testset "Method $m XOR connected information" for m in methods_xor
 		result2 = connected_information(ax, 2, m)[1][2]
 		result3 = connected_information(ax, 3, m)[1][3]
 		result_dic = connected_information(ax, [2, 3], m)
-		@test isapprox(result2, 0, atol=etol)
-		@test isapprox(result3, 1, atol=etol)
-		@test isapprox(result_dic[1][2], 0, atol=etol)
-		@test isapprox(result_dic[1][3], 1, atol=etol)
-		@test isapprox(result_dic[2][2], 3, atol=etol)
-		@test isapprox(result_dic[2][3], 2, atol=etol)
+		@test isapprox(result2, 0; atol)
+		@test isapprox(result3, 1; atol)
+		@test isapprox(result_dic[1][2], 0; atol)
+		@test isapprox(result_dic[1][3], 1; atol)
+		@test isapprox(result_dic[2][2], 3; atol)
+		@test isapprox(result_dic[2][3], 2; atol)
 	end
 
+	# Test fixed marginal entropies
+	etol=1e-2
+	methods_xor2 = [Direct(), RawPolymatroid()]
+
+	@testset "Method $m XOR entropy" for m in methods_xor2
+		result1 = maximise_entropy(dx, 1, m)
+		result2 = maximise_entropy(dx, 2, m)
+		result3 = maximise_entropy(dx, 3, m)
+		@test isapprox(result1.entropy, 3; atol=etol) broken=(m isa Direct)
+		@test isapprox(result2.entropy, 3; atol=etol) broken=(m isa Direct)
+		@test isapprox(result3.entropy, 2; atol=etol) broken=(m isa Direct)
+	end
+
+	@testset "Method $m XOR connected information" for m in methods_xor2
+		result2 = connected_information(dx, 2, m)[1][2]
+		result3 = connected_information(dx, 3, m)[1][3]
+		result_dic = connected_information(dx, [2, 3], m)
+		@test isapprox(result2, 0; atol=etol)
+		@test isapprox(result3, 1; atol=etol) broken=(m isa Direct)
+		@test isapprox(result_dic[1][2], 0; atol=etol)
+		@test isapprox(result_dic[1][3], 1; atol=etol) broken=(m isa Direct)
+	end
+
+	methods_xor3 = [Direct("madnlp"), RawPolymatroid(true), GPolymatroid(), GPolymatroid(0.05)]
+	@testset "Method $m XOR entropy" for m in methods_xor3
+		result1 = maximise_entropy(ax, 1, m)
+		result2 = maximise_entropy(ax, 2, m)
+		result3 = maximise_entropy(ax, 3, m)
+		@test isapprox(result1.entropy, 3, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
+		@test isapprox(result2.entropy, 3, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
+		@test isapprox(result3.entropy, 2, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
+	end
+	
+	@testset "Method $m XOR connected information" for m in methods_xor3
+		result2 = connected_information(ax, 2, m)[1][2]
+		result3 = connected_information(ax, 3, m)[1][3]
+		result_dic = connected_information(ax, [2, 3], m)
+		@test isapprox(result2, 0, atol=etol) broken=(m isa Direct)
+		@test isapprox(result3, 1, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
+		@test isapprox(result_dic[1][2], 0, atol=etol) broken=(m isa Direct)
+		@test isapprox(result_dic[1][3], 1, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
+		@test isapprox(result_dic[2][2], 3, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
+		@test isapprox(result_dic[2][3], 2, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
+	end
+
+	bx=[10; 0;; 0; 100;;; 0; 1000;; 1500; 0]
+	@test maximise_entropy(bx, 1, GPolymatroid()) isa EMFMEResult
+	cx=[0; 0;; 0; 0;;; 0; 0;; 0; 0]
+	@test_throws ArgumentError maximise_entropy(cx, 1, GPolymatroid())
+	@test_throws DomainError maximise_entropy(dx, 1, GPolymatroid())
+	@test_throws DomainError maximise_entropy(dx./2, 1, RawPolymatroid())
+	@test_throws DomainError connected_information(dx, 2, GPolymatroid())
+	@test_throws DomainError connected_information(dx./2, 2, RawPolymatroid())
+	
+	ex=stack([ax, bx])
+	@test connected_information(ex, 2, RawPolymatroid(false, true)) isa Tuple{Dict{Int, Float64}, Dict{Int, Float64}}
 end;

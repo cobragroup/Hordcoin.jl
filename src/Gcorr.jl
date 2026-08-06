@@ -46,13 +46,7 @@ function _update_G!(cache::GCache, need_len::Int)
 	resize!(G, need_len)
 	for i in (old_len+1):need_len
 		# Continue the same recurrence using already-initialized G[old_len]
-		if i == 1
-			G[1] = -γ - log(2)
-		elseif i == 2
-			G[2] = 2 + G[1]
-		else
-			G[i] = G[i-1] + 2 / (2 * (i - 2) + 1)
-		end
+		G[i] = G[i-1] + 2 / (2 * (i - 2) + 1)
 	end
 	return cache
 end
