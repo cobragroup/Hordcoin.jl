@@ -360,21 +360,18 @@ Useful when repeatedly solving polymatroid programs with the same dataset: pass 
 # Returns
 - `Dict{Vector{Int},Real}` mapping each subset `S` (stored as a sorted `Vector{Int}`) to `Gcorr` entropy of the marginal over `S`.
 """
-function precompute_entropies(data::Array{Int})
+function precompute_entropies(data::Array{<:Number}, method::PolymatroidEntropyMethod = GPolymatroid())::Dict{Vector{Int64},Real}
 
 	entropies = Dict()
 
 	num_dimensions = ndims(data)
 
-	@show num_dimensions
-
 	~(s::Tuple) = (i for i ∈ 1:ndims(data) if i ∉ s)
 
 	for i in 1:num_dimensions
-		@show i
 		marginals = permutations_of_length(i, num_dimensions)
 		for m in marginals
-			entropies[collect(m)] = entropy(data, GPolymatroid(), ~(m))
+			entropies[collect(m)] = entropy(data, method, ~(m))
 		end
 	end
 

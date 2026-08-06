@@ -44,6 +44,8 @@ using Test
 	
 	dx = [0.25; 0;; 0; 0.25;;; 0; 0.25;; 0.25; 0]
 	ax = [1000; 0;; 0; 1000;;; 0; 1000;; 1000; 0]
+	bx=[10; 0;; 0; 100;;; 0; 1000;; 1500; 0]
+	ex=stack([ax, bx])
 
 	# Test fixed marginal distributions
 	methods_xor = [Cone(), Ipfp(10), Gradient(100)]
@@ -133,15 +135,27 @@ using Test
 		@test isapprox(result_dic[2][3], 2, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
 	end
 
-	bx=[10; 0;; 0; 100;;; 0; 1000;; 1500; 0]
-	@test maximise_entropy(bx, 1, GPolymatroid()) isa EMFMEResult
-	cx=[0; 0;; 0; 0;;; 0; 0;; 0; 0]
-	@test_throws ArgumentError maximise_entropy(cx, 1, GPolymatroid())
-	@test_throws DomainError maximise_entropy(dx, 1, GPolymatroid())
-	@test_throws DomainError maximise_entropy(dx./2, 1, RawPolymatroid())
-	@test_throws DomainError connected_information(dx, 2, GPolymatroid())
-	@test_throws DomainError connected_information(dx./2, 2, RawPolymatroid())
+	@testset "Specific GPolymatroid" begin
+		@test maximise_entropy(bx, 1, GPolymatroid()) isa EMFMEResult
+		cx=[0; 0;; 0; 0;;; 0; 0;; 0; 0]
+		@test_throws ArgumentError maximise_entropy(cx, 1, GPolymatroid())
+	end
 	
-	ex=stack([ax, bx])
-	@test connected_information(ex, 2, RawPolymatroid(false, true)) isa Tuple{Dict{Int, Float64}, Dict{Int, Float64}}
+	@testset "Test DomainError" begin
+		@test_throws DomainError maximise_entropy(dx./2, 1, RawPolymatroid())
+		@test_throws DomainError connected_information(dx, 2, GPolymatroid())
+		@test_throws DomainError connected_information(dx./2, 2, RawPolymatroid())
+		@test_throws DomainError maximise_entropy(dx, 1, GPolymatroid())
+	end
+
+	@testset "Test Zhang-Yeung" begin
+		@test connected_information(ex, 2, RawPolymatroid(false, true)) isa Tuple{Dict{Int, Float64}, Dict{Int, Float64}}
+	end
+
+	@testset "precompute_entropies" begin
+		@test precompute_entropies(ex, RawPolymatroid()) isa Dict{Vector{Int64},Real}
+		@test precompute_entropies(ex, GPolymatroid()) isa Dict{Vector{Int64},Real}
+		@test precompute_entropies(dx, RawPolymatroid()) isa Dict{Vector{Int64},Real}
+		@test_throws MethodError precompute_entropies(dx, GPolymatroid())
+	end
 end;
