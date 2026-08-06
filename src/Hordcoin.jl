@@ -26,7 +26,6 @@ export RawPolymatroid
 export GPolymatroid
 
 export maximise_entropy
-export maximise_entropy_ent
 export connected_information
 
 export distribution_entropy
@@ -264,10 +263,6 @@ function _max_ent(joined_probability::Array{T}, marginal_size::Int, method::Poly
     end
 	return EMFMEResult(res[1], ents)
 end
-
-# export connected_information
-
-
 
 """
 	connected_information(
