@@ -173,10 +173,10 @@ Builds a JuMP model with polymatroid constraints and sets `h(S)` equal to **entr
 - If `method.zhang_yeung` is `true` and `ndims(data) ≥ 4`, Zhang–Yeung inequalities are added.
 """
 function polymatroid_most_gen(method::PolymatroidEntropyMethod,
-	data::Array{Int},
+	data::Array{T},
 	marginal_size::Int;
 	precalculated_entropies = Dict{Vector{Int}, Real}(),
-	set_to_index = Dict())
+	set_to_index = Dict()) where T <: Number 
 
 	model = Model(typeof(method.optimiser))
 	set_silent(model)
@@ -222,7 +222,7 @@ function polymatroid_most_gen(method::PolymatroidEntropyMethod,
 		@constraint(model, h[s_i[N]] >= h[s_i[setdiff(N, i)]])
 	end
 
-	~(s::Tuple) = (i for i ∈ 1:ndims(data) if i ∉ s)
+	~(s::Tuple) = (i for i ∈ 1:num_dimensions if i ∉ s)
 
 	ent_con = Array{Any, 1}(undef, marginal_size)
 
@@ -308,14 +308,24 @@ Computes `distribution_entropy(sum(method.joined_probability, dims = inverse_mar
 
 # Arguments
 - `data::Array{Int}`: Ignored by this estimator; present for a uniform signature.
-- `method::RawPolymatroid`: Contains `joined_probability` and `mle_correction` fields.
+- `method::RawPolymatroid`: Contains `mle_correction` field.
 - `inverse_marginals`: Iterable of axes to marginalize out.
 
 # Returns
 - `Real`: Estimated entropy of the marginal defined by `inverse_marginals`.
 """
 function entropy(data::Array{Int}, method::RawPolymatroid, inverse_marginals)::Real
-	return distribution_entropy(sum(method.joined_probability, dims = inverse_marginals)) + method.mle_correction
+	p = data ./ sum(data)
+	if method.mle_correction
+		mle_correction = (length(data) - 1) / (2 * sum(data))
+	else
+		mle_correction = 0
+	end
+	return distribution_entropy(sum(p, dims = inverse_marginals)) + mle_correction
+end
+
+function entropy(data::Array{<:T}, method::RawPolymatroid, inverse_marginals)::Real where T <: AbstractFloat
+	return distribution_entropy(sum(data, dims = inverse_marginals))
 end
 
 """
