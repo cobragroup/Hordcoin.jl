@@ -69,9 +69,9 @@ using Test
 	methods_xor2 = [Direct(), RawPolymatroid(), GPolymatroid()]
 	etol=1e-2
 	@testset "Method $m XOR entropy" for m in methods_xor2
-		result1 = max_ent_fixed_ent_unnormalized(ax, 1, m)
-		result2 = max_ent_fixed_ent_unnormalized(ax, 2, m)
-		result3 = max_ent_fixed_ent_unnormalized(ax, 3, m)
+		result1 = max_ent_fixed_ent(ax, 1, m)
+		result2 = max_ent_fixed_ent(ax, 2, m)
+		result3 = max_ent_fixed_ent(ax, 3, m)
 		@test isapprox(result1.entropy, 3, atol=etol)
 		@test isapprox(result2.entropy, 3, atol=etol)
 		@test isapprox(result3.entropy, 2, atol=etol)
