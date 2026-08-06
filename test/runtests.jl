@@ -56,13 +56,13 @@ using Test
 	end
 
 	@testset "Method $m XOR connected information" for m in methods_xor
-		result2 = connected_information(dx, 2, m)
-		result3 = connected_information(dx, 3, m)
+		result2 = connected_information(dx, 2, m)[1][2]
+		result3 = connected_information(dx, 3, m)[1][3]
 		result_dic = connected_information(dx, [2, 3], m)
 		@test isapprox(result2, 0; atol)
 		@test isapprox(result3, 1; atol)
-		@test isapprox(result_dic[2], 0; atol)
-		@test isapprox(result_dic[3], 1; atol)
+		@test isapprox(result_dic[1][2], 0; atol)
+		@test isapprox(result_dic[1][3], 1; atol)
 	end
 
 	ax = [1000; 0;; 0; 1000;;; 0; 1000;; 1000; 0]

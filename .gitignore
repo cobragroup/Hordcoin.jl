@@ -2,3 +2,4 @@
 /resources/turkiye-student-evaluation_generic.csv
 /src/connectivities_estimates_withsurr_twoAALnets.mat
 /src/matlabParser.jl
+*.cov

@@ -35,10 +35,12 @@ end
 Base.show(io::IO, result::EMFMEResult) =
 	print(io, "Entropy: ", result.entropy, "\nMarginal Entropies:\n", result.marginal_entropies)
 
+abstract type AbstractMaximizationMethod end
+
 """
 Abstract supertype for methods used to maximise entropy with fixed marginal constraints.
 """
-abstract type AbstractMarginalMethod end
+abstract type AbstractMarginalMethod <: AbstractMaximizationMethod end
 
 """
 Marginal method that uses cone programming via the specified optimiser.
@@ -80,7 +82,7 @@ Ipfp() = Ipfp(10)
 """
 Abstract supertype for different entropy maximisation strategies.
 """
-abstract type AbstractEntropyMethod end
+abstract type AbstractEntropyMethod <: AbstractMaximizationMethod end
 
 """
 Entropy maximisation method that solves the problem directly via a given optimiser.
