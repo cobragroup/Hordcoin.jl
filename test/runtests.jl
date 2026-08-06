@@ -96,8 +96,8 @@ using Test
 		result1 = maximise_entropy(dx, 1, m)
 		result2 = maximise_entropy(dx, 2, m)
 		result3 = maximise_entropy(dx, 3, m)
-		@test isapprox(result1.entropy, 3; atol=etol) broken=(m isa Direct)
-		@test isapprox(result2.entropy, 3; atol=etol) broken=(m isa Direct)
+		@test isapprox(result1.entropy, 3; atol=etol)
+		@test isapprox(result2.entropy, 3; atol=etol)
 		@test isapprox(result3.entropy, 2; atol=etol) broken=(m isa Direct)
 	end
 
@@ -116,7 +116,7 @@ using Test
 		result1 = maximise_entropy(ax, 1, m)
 		result2 = maximise_entropy(ax, 2, m)
 		result3 = maximise_entropy(ax, 3, m)
-		@test isapprox(result1.entropy, 3, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
+		@test isapprox(result1.entropy, 3, atol=etol) broken=(m isa GPolymatroid)
 		@test isapprox(result2.entropy, 3, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
 		@test isapprox(result3.entropy, 2, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
 	end

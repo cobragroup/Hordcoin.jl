@@ -141,5 +141,5 @@ function nlp_fixed_entropies(joined_prob::Array{Float64}, marginal_size; model::
 	JuMP.optimize!(model)
 
 	# this function uses natural logarithm, so it is need to take it in account
-	return EMResult(objective_value(model) / log(2), value.(p))
+	return EMResult(objective_value(model), value.(p))
 end
