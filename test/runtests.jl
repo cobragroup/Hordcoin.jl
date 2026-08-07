@@ -100,7 +100,7 @@ using Test
 		result3 = maximise_entropy(dx, 3, m)
 		@test isapprox(result1.entropy, 3; atol=etol)
 		@test isapprox(result2.entropy, 3; atol=etol)
-		@test isapprox(result3.entropy, 2; atol=etol) broken=(m isa Direct)
+		@test isapprox(result3.entropy, 2; atol=etol)
 	end
 
 	@testset "Method $m XOR connected information" for m in methods_xor2
@@ -108,9 +108,9 @@ using Test
 		result3 = connected_information(dx, 3, m)[1][3]
 		result_dic = connected_information(dx, [2, 3], m)
 		@test isapprox(result2, 0; atol=etol)
-		@test isapprox(result3, 1; atol=etol) broken=(m isa Direct)
+		@test isapprox(result3, 1; atol=etol)
 		@test isapprox(result_dic[1][2], 0; atol=etol)
-		@test isapprox(result_dic[1][3], 1; atol=etol) broken=(m isa Direct)
+		@test isapprox(result_dic[1][3], 1; atol=etol)
 	end
 
 	methods_xor3 = [Direct("madnlp"), RawPolymatroid(true), GPolymatroid(), GPolymatroid(0.05)]
@@ -119,18 +119,18 @@ using Test
 		result2 = maximise_entropy(ax, 2, m)
 		result3 = maximise_entropy(ax, 3, m)
 		@test isapprox(result1.entropy, 3, atol=etol) broken=(m isa GPolymatroid)
-		@test isapprox(result2.entropy, 3, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
-		@test isapprox(result3.entropy, 2, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
+		@test isapprox(result2.entropy, 3, atol=etol) broken=(m isa GPolymatroid)
+		@test isapprox(result3.entropy, 2, atol=etol) broken=(m isa GPolymatroid)
 	end
 	
 	@testset "Method $m XOR connected information" for m in methods_xor3
 		result2 = connected_information(ax, 2, m)[1][2]
 		result3 = connected_information(ax, 3, m)[1][3]
 		result_dic = connected_information(ax, [2, 3], m)
-		@test isapprox(result2, 0, atol=etol) broken=(m isa Direct)
-		@test isapprox(result3, 1, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
-		@test isapprox(result_dic[1][2], 0, atol=etol) broken=(m isa Direct)
-		@test isapprox(result_dic[1][3], 1, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
+		@test isapprox(result2, 0, atol=etol)
+		@test isapprox(result3, 1, atol=etol) broken=(m isa GPolymatroid)
+		@test isapprox(result_dic[1][2], 0, atol=etol)
+		@test isapprox(result_dic[1][3], 1, atol=etol) broken=(m isa GPolymatroid)
 		@test isapprox(result_dic[2][2].entropy, 3, atol=etol) broken=(m isa GPolymatroid)
 		@test isapprox(result_dic[2][3].entropy, 2, atol=etol) broken=(m isa GPolymatroid)
 	end

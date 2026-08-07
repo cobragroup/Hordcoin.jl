@@ -69,26 +69,6 @@ function polymatroid_optim(method::PolymatroidEntropyMethod,
 		end
 	end
 
-	# ∀𝐴 ⊆ 𝒫(𝑁)
-	for A in powerset(N)
-		if length(A) > num_dimensions - 2
-			continue
-		end
-
-		# submodularity 
-		# 𝒉(𝐴 ∪ 𝘪) + 𝒉(𝐴 ∪ 𝘫) ≥ 𝒉(𝐴 ∪ 𝘪𝘫) + 𝒉(𝐴)
-		for ij in powerset(setdiff(N, A), 2, 2)
-			i, j = ij
-			@constraint(model, h[s_i[sort(A ∪ i)]] + h[s_i[sort(A ∪ j)]] >= h[s_i[sort(A ∪ ij)]] + h[s_i[A]])
-		end
-	end
-
-	# monotonicity
-	# 𝒉(𝑁) ≥ 𝒉(𝑁 ∖ 𝘪), ∀𝑖 ∈ 𝑁
-	for i in N
-		@constraint(model, h[s_i[N]] >= h[s_i[setdiff(N, i)]])
-	end
-
 	~(s::Tuple) = (i for i ∈ 1:num_dimensions if i ∉ s)
 
 	ent_con = Array{Any, 1}(undef, marginal_size)
@@ -113,6 +93,36 @@ function polymatroid_optim(method::PolymatroidEntropyMethod,
 		end
 	end
 
+	if marginal_size == num_dimensions
+		h=Vector{Float64}(undef, 2^num_dimensions)
+		if !haskey(ent, Int64[])
+			ent[Int64[]] = 0.
+		end
+		for k in s_i
+			h[k[2]] = ent[k[1]]
+		end
+		return ent[N], h, ent, s_i
+	end
+
+	# ∀𝐴 ⊆ 𝒫(𝑁)
+	for A in powerset(N)
+		if length(A) > num_dimensions - 2
+			continue
+		end
+
+		# submodularity 
+		# 𝒉(𝐴 ∪ 𝘪) + 𝒉(𝐴 ∪ 𝘫) ≥ 𝒉(𝐴 ∪ 𝘪𝘫) + 𝒉(𝐴)
+		for ij in powerset(setdiff(N, A), 2, 2)
+			i, j = ij
+			@constraint(model, h[s_i[sort(A ∪ i)]] + h[s_i[sort(A ∪ j)]] >= h[s_i[sort(A ∪ ij)]] + h[s_i[A]])
+		end
+	end
+
+	# monotonicity
+	# 𝒉(𝑁) ≥ 𝒉(𝑁 ∖ 𝘪), ∀𝑖 ∈ 𝑁
+	for i in N
+		@constraint(model, h[s_i[N]] >= h[s_i[setdiff(N, i)]])
+	end
 
 	# Zhang-Yeung
 	if num_dimensions >= 4 && method.zhang_yeung

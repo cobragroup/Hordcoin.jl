@@ -103,7 +103,9 @@ Solve a JuMP NLP that maximizes entropy while **matching the entropies** of all 
 function nlp_fixed_entropies(joint_probability::Array{<:AbstractFloat}, marginal_size; model::Model = Model(Ipopt.Optimizer))::EMResult
 
 	num_dimensions = ndims(joint_probability)
-
+	if marginal_size == num_dimensions
+		return EMResult(distribution_entropy(joint_probability), vec(joint_probability))
+	end
 	# defines the complement of a set of dimension
 	~(s) = (i for i ∈ 1:num_dimensions if i ∉ s)
 
@@ -119,7 +121,7 @@ function nlp_fixed_entropies(joint_probability::Array{<:AbstractFloat}, marginal
 
 	for i in 1:marginal_size
 		entropies = permutations_of_length(i, num_dimensions)
-		for ent in eachcol(entropies)
+		for ent in entropies
 			d = Tuple(collect(~(ent)))
 
 			par_prob = dropdims(sum(joint_probability, dims = d), dims = d)
