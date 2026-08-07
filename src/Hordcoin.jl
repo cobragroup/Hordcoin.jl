@@ -29,6 +29,7 @@ export connected_information
 
 export distribution_entropy
 export permutations_of_length
+export precompute_entropies
 
 export EResult
 export EMResult

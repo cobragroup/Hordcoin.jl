@@ -20,8 +20,10 @@ EMResult(joint_probability::Array{T}) where T <: Real =
 	EMResult(distribution_entropy(joint_probability), joint_probability)
 EMResult(entropy::Float64) =
 	EMResult(entropy, Array{Float64}(undef, 0))
-Base.show(io::IO, result::EMResult) =
+Base.show(io::IO, ::MIME"text/plain", result::EMResult) =
 	print(io, "Entropy: ", result.entropy, "\nDistribution:\n", result.joint_probability)
+Base.show(io::IO, result::EMResult) =
+	print(io, "EMResult(", result.entropy, ", ", result.joint_probability, ")")
 
 """
 Holds the result of an entropy maximisation with fixed marginal entropies, storing the computed entropy value and the corresponding marginal entropies.
@@ -36,8 +38,10 @@ struct EMFMEResult <: EResult
 end
 EMFMEResult(entropy::Float64) =
 	EMFMEResult(entropy, Dict{Vector{Int64}, Float64}())
-Base.show(io::IO, result::EMFMEResult) =
+Base.show(io::IO, ::MIME"text/plain", result::EMFMEResult) =
 	print(io, "Entropy: ", result.entropy, "\nMarginal Entropies:\n", result.marginal_entropies)
+Base.show(io::IO, result::EMFMEResult) =
+	print(io, "EMFMEResult(", result.entropy, ", ", result.marginal_entropies, ")")
 
 abstract type AbstractMaximizationMethod end
 
