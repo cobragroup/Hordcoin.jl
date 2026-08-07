@@ -35,9 +35,6 @@ julia> distribution_entropy([0.25 0.25; 0.25 0.25])
 function distribution_entropy(distribution::Array{<:Real})
     any(x -> x < 0, distribution) && 
         throw(DomainError("Distribution entropy cannot be computed for negative value"))
-    if length(distribution)==0
-        return 0
-    end
     return sum(entropy, distribution)
 end
 

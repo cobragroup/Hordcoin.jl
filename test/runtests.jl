@@ -86,8 +86,8 @@ using Test
 		@test isapprox(result3, 1; atol)
 		@test isapprox(result_dic[1][2], 0; atol)
 		@test isapprox(result_dic[1][3], 1; atol)
-		@test isapprox(result_dic[2][2], 3; atol)
-		@test isapprox(result_dic[2][3], 2; atol)
+		@test isapprox(result_dic[2][2].entropy, 3; atol)
+		@test isapprox(result_dic[2][3].entropy, 2; atol)
 	end
 
 	# Test fixed marginal entropies
@@ -131,8 +131,8 @@ using Test
 		@test isapprox(result3, 1, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
 		@test isapprox(result_dic[1][2], 0, atol=etol) broken=(m isa Direct)
 		@test isapprox(result_dic[1][3], 1, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
-		@test isapprox(result_dic[2][2], 3, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
-		@test isapprox(result_dic[2][3], 2, atol=etol) broken=(m isa Direct)||(m isa GPolymatroid)
+		@test isapprox(result_dic[2][2].entropy, 3, atol=etol) broken=(m isa GPolymatroid)
+		@test isapprox(result_dic[2][3].entropy, 2, atol=etol) broken=(m isa GPolymatroid)
 	end
 
 	@testset "Specific GPolymatroid" begin
@@ -149,7 +149,7 @@ using Test
 	end
 
 	@testset "Test Zhang-Yeung" begin
-		@test connected_information(ex, 2, RawPolymatroid(false, true)) isa Tuple{Dict{Int, Float64}, Dict{Int, Float64}}
+		@test connected_information(ex, 2, RawPolymatroid(false, true)) isa Tuple{Dict{Int, Float64}, Dict{Int, EResult}}
 	end
 
 	@testset "precompute_entropies" begin
@@ -164,5 +164,23 @@ using Test
 		@test maximise_entropy(ax, 1) isa EMFMEResult
 		@test !isapprox(connected_information(ax, 3)[1][3], 1; atol=1e-5)
 		@test isapprox(connected_information(dx, 3)[1][3], 1; atol=1e-5)
+	end
+
+	@testset "Method $m CI full_result" for m in methods_xor
+		result = connected_information(dx, 2, m, full_output=true)
+		@test isapprox(result[1][2], 0; atol)
+		@test isapprox(result[2][2].entropy, 3; atol)
+		@test isapprox(result[2][2].joint_probability[1,1,1], 0.125; atol)
+	end
+
+	@testset "Method $m CI full_result" for m in methods_xor2
+		result = connected_information(dx, 2, m, full_output=true)
+		@test isapprox(result[1][2], 0, atol=etol)
+		@test isapprox(result[2][2].entropy, 3, atol=etol)
+		if m isa Direct
+			@test isapprox(result[2][2].joint_probability[1,1,1], 0.125; atol)
+		else
+			@test isapprox(result[2][2].marginal_entropies[[1,2]], 2, atol=etol)
+		end
 	end
 end;

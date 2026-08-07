@@ -18,6 +18,8 @@ end
 
 EMResult(joint_probability::Array{T}) where T <: Real =
 	EMResult(distribution_entropy(joint_probability), joint_probability)
+EMResult(entropy::Float64) =
+	EMResult(entropy, Array{Float64}(undef, 0))
 Base.show(io::IO, result::EMResult) =
 	print(io, "Entropy: ", result.entropy, "\nDistribution:\n", result.joint_probability)
 
@@ -32,6 +34,8 @@ struct EMFMEResult <: EResult
 	entropy::Float64
 	marginal_entropies::Dict{Vector{Int64}, T} where T <: Real
 end
+EMFMEResult(entropy::Float64) =
+	EMFMEResult(entropy, Dict{Vector{Int64}, Float64}())
 Base.show(io::IO, result::EMFMEResult) =
 	print(io, "Entropy: ", result.entropy, "\nMarginal Entropies:\n", result.marginal_entropies)
 
