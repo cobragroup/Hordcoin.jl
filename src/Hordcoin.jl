@@ -390,6 +390,20 @@ function connected_information(joint_probability::Array{T}, orders::S; precalcul
 	return connected_information(joint_probability, [orders]; precalculated_entropies = precalculated_entropies, full_output = full_output)
 end
 
+
+"""
+	connected_information(joint_probability::Array{T}, method::AbstractMaximizationMethod; precalculated_entropies = Dict{Vector{Integer}, Real}(), full_output::Bool=false) where T <: Real where S <: Integer -> Tuple{Dict{Int, Float64}, Dict{Int, EResult}} 
+
+When called without specifying the orders, compute CI at all orders by default.
+"""
+function connected_information(joint_probability::Array{T}, method::AbstractMaximizationMethod; precalculated_entropies = Dict{Vector{Integer}, Real}(), full_output::Bool=false)::Tuple{Dict{Int, Float64}, Dict{Int, EResult}} where T <: Real
+	return connected_information(joint_probability, collect(2:ndims(joint_probability)), method; precalculated_entropies = precalculated_entropies, full_output = full_output)
+end
+
+function connected_information(joint_probability::Array{T}; precalculated_entropies = Dict{Vector{Int}, Real}(), full_output::Bool=false)::Tuple{Dict{Int, Float64}, Dict{Int, EResult}} where T <: Real
+	return connected_information(joint_probability, collect(2:ndims(joint_probability)); precalculated_entropies = precalculated_entropies, full_output = full_output)
+end
+
 function _max_entropy_for_set(joint_probability::Array{<:T}, marginal_size::Set{<:Integer}, method::PolymatroidEntropyMethod; precalculated_entropies = Dict{Vector{Int}, Real}(), full_output::Bool=false)::Dict{Int, EMFMEResult}  where T <: Real
 	ent = precalculated_entropies
 	si = Dict()
