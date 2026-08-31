@@ -1,27 +1,54 @@
 # types.jl
+"""
+Abstract supertype for structs containing the results of entropy maximisation.
+"""
+abstract type EResult end
 
 """
 Holds the result of an entropy maximisation, storing the computed entropy value and the corresponding joint probability distribution.
 
 # Parameters
 - `entropy::Float64`: The computed entropy value.
-- `joined_probability::Array{T}`: The joint probability distribution.
+- `joint_probability::Array{T}`: The joint probability distribution.
 """
-struct EMResult
+struct EMResult <: EResult
 	entropy::Float64
-	joined_probability::Array{T} where T <: Real
+	joint_probability::Array{T} where T <: Real
 end
 
-EMResult(joined_probability::Array{T}) where T <: Real =
-	EMResult(distribution_entropy(joined_probability), joined_probability)
+EMResult(joint_probability::Array{T}) where T <: Real =
+	EMResult(distribution_entropy(joint_probability), joint_probability)
+EMResult(entropy::Float64) =
+	EMResult(entropy, Array{Float64}(undef, 0))
+Base.show(io::IO, ::MIME"text/plain", result::EMResult) =
+	print(io, "Entropy: ", result.entropy, "\nDistribution:\n", result.joint_probability)
 Base.show(io::IO, result::EMResult) =
-	print(io, "Entropy: ", result.entropy, "\nDistribution:\n", result.joined_probability)
+	print(io, "EMResult(", result.entropy, ", ", result.joint_probability, ")")
 
+"""
+Holds the result of an entropy maximisation with fixed marginal entropies, storing the computed entropy value and the corresponding marginal entropies.
+
+# Parameters
+- `entropy::Float64`: The computed entropy value.
+- `marginal_entropies::Dict{Vector{Int64}, T}`: The joint probability distribution.
+"""
+struct EMFMEResult <: EResult
+	entropy::Float64
+	marginal_entropies::Dict{Vector{Int64}, T} where T <: Real
+end
+EMFMEResult(entropy::Float64) =
+	EMFMEResult(entropy, Dict{Vector{Int64}, Float64}())
+Base.show(io::IO, ::MIME"text/plain", result::EMFMEResult) =
+	print(io, "Entropy: ", result.entropy, "\nMarginal Entropies:\n", result.marginal_entropies)
+Base.show(io::IO, result::EMFMEResult) =
+	print(io, "EMFMEResult(", result.entropy, ", ", result.marginal_entropies, ")")
+
+abstract type AbstractMaximizationMethod end
 
 """
 Abstract supertype for methods used to maximise entropy with fixed marginal constraints.
 """
-abstract type AbstractMarginalMethod end
+abstract type AbstractMarginalMethod <: AbstractMaximizationMethod end
 
 """
 Marginal method that uses cone programming via the specified optimiser.
@@ -63,7 +90,7 @@ Ipfp() = Ipfp(10)
 """
 Abstract supertype for different entropy maximisation strategies.
 """
-abstract type AbstractEntropyMethod end
+abstract type AbstractEntropyMethod <: AbstractMaximizationMethod end
 
 """
 Entropy maximisation method that solves the problem directly via a given optimiser.
@@ -89,20 +116,16 @@ Polymatroid-based entropy method that uses empirical marginal entropies, with op
 - `mle_correction::Float64`: Amount of MLE bias correction to apply (default `0.0`).
 - `zhang_yeung::Bool`: Whether to include Zhang–Yeung inequalities (default `false`).
 - `optimiser::MathOptInterface.AbstractOptimizer`: Optimiser to use.
-- `joined_probability`: Optional probability distribution used for entropy estimation.
 """
 mutable struct RawPolymatroid <: PolymatroidEntropyMethod
-	mle_correction::Float64
+	mle_correction::Bool
 	zhang_yeung::Bool
 	optimiser::MathOptInterface.AbstractOptimizer
-	joined_probability::Any
 end
 
-RawPolymatroid() = RawPolymatroid(0.0, false, SCS.Optimizer(), nothing)
-RawPolymatroid(mle_correction::Float64) = RawPolymatroid(mle_correction, false, SCS.Optimizer(), nothing)
-RawPolymatroid(zhang_yeung::Bool) = RawPolymatroid(0.0, zhang_yeung, SCS.Optimizer(), nothing)
-RawPolymatroid(mle_correction::Float64, zhang_yeung::Bool) = RawPolymatroid(mle_correction, zhang_yeung, SCS.Optimizer(), nothing)
-RawPolymatroid(mle_correction::Float64, zhang_yeung::Bool, optimiser::MathOptInterface.AbstractOptimizer) = RawPolymatroid(mle_correction, zhang_yeung, optimiser, nothing)
+RawPolymatroid() = RawPolymatroid(false, false, SCS.Optimizer())
+RawPolymatroid(mle_correction::Bool) = RawPolymatroid(mle_correction, false, SCS.Optimizer())
+RawPolymatroid(mle_correction::Bool, zhang_yeung::Bool) = RawPolymatroid(mle_correction, zhang_yeung, SCS.Optimizer())
 
 """
 Polymatroid-based entropy method that uses the Grassberger entropy estimator for marginals.
