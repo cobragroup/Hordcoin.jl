@@ -93,18 +93,6 @@ Abstract supertype for different entropy maximisation strategies.
 abstract type AbstractEntropyMethod <: AbstractMaximizationMethod end
 
 """
-Entropy maximisation method that solves the problem directly via a given optimiser.
-
-# Parameters
-- `optimiser::String`: Name of the optimiser to use, defaults to ipopt.
-"""
-struct Direct <: AbstractEntropyMethod
-	optimiser::String
-end
-
-Direct() = Direct("ipopt")
-
-"""
 Abstract supertype for entropy methods based on polymatroid (submodular) constraints.
 """
 abstract type PolymatroidEntropyMethod <: AbstractEntropyMethod end
