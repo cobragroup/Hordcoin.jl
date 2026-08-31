@@ -10,8 +10,6 @@ using SCS
 using MathOptInterface
 using JuMP
 using MosekTools
-using Ipopt
-using MadNLP
 
 using CDDLib
 
