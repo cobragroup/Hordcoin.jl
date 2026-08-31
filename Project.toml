@@ -1,7 +1,7 @@
 name = "Hordcoin"
 uuid = "5495aede-444c-4b33-a3d8-b01a3ffd757a"
 authors = ["Jakub Kislinger", "Giulio Tani Raffaelli", "Tomáš Kroupa", "Jaroslav Hlinka"]
-version = "1.2.0"
+version = "1.2.1"
 
 [deps]
 CDDLib = "3391f64e-dcde-5f30-b752-e11513730f60"
