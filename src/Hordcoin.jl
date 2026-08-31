@@ -19,7 +19,6 @@ export Cone
 export Gradient
 export Ipfp
 
-export Direct
 export PolymatroidEntropyMethod
 export RawPolymatroid
 export GPolymatroid
@@ -262,7 +261,6 @@ When called with an EntropyMethod fixes the marginal distribution entropies for 
 # Arguments
 - `marginal_size::Int`: Order of marginals up to which the **entropy** is kept fixed. For example, `2` fixes the entropy of 1D and 2D marginals.
 - `method::AbstractEntropyMethod = RawPolymatroid()`:
-	- `Direct([optimiser])`: Non-Linear Programming optimisation. The optimiser can be either "ipopt" or "madnlp".
 	- `RawPolymatroid([mle_correction, zhang_yeung, optimiser])`: Polymatroid optimisation with naive estimate of marginal entropies. Optionally include MLE correction and Zhang–Yeung inequalities. The optimiser can be an instance of "SCS" or "Mosek".
 	- `GPolymatroid([zhang_yeung, optimiser, tolerance])`: Polymatroid optimisation with Grassberger entropy estimator. Optionally include Zhang–Yeung inequalities. The optimiser can be an instance of "SCS" or "Mosek". The tolerance is a relaxation of the constraints to help convergence, can lead to negative CI.
 
@@ -281,8 +279,8 @@ function maximise_entropy(
 		throw(DomainError("Marginal size has to be positive"))
 
 	if joint_probability isa Array{<:AbstractFloat}
-		if ! ((method isa RawPolymatroid) || (method isa Direct))
-			throw(DomainError("Method must be either RawPolymatroid or Direct for fixed entropy maximisation and normalized distribution."))
+		if ! (method isa RawPolymatroid)
+			throw(DomainError("Method must be RawPolymatroid for fixed entropy maximisation and normalized distribution."))
 		end # better failing soon with a better error message
 		!isapprox(sum(joint_probability), 1) &&
 			throw(DomainError("Joint probability has to sum to 1"))
@@ -298,14 +296,6 @@ When called with an array of integers assume fixed marginal distributions entrop
 """
 function maximise_entropy(counts::Array{<:Integer}, marginal_size::S; precalculated_entropies = Dict{Vector{Integer}, Real}())::EMFMEResult where S<:Integer
 	return maximise_entropy(counts, marginal_size, RawPolymatroid(); precalculated_entropies = precalculated_entropies)
-end
-
-function _max_ent(joint_probability::Array{<:AbstractFloat}, marginal_size::S, method::Direct; precalculated_entropies = Dict())::EMResult where S<:Integer
-	return nlp_entropies_for_optimiser(joint_probability, marginal_size, method.optimiser)
-end
-
-function _max_ent(counts::Array{<:Integer}, marginal_size::S, method::Direct; precalculated_entropies = Dict())::EMResult where S<:Integer
-	return _max_ent(counts ./ sum(counts), marginal_size, method)
 end
 
 function _max_ent(joint_probability::Array{T}, marginal_size::S, method::PolymatroidEntropyMethod;precalculated_entropies = Dict{Vector{Integer}, Real}())::EMFMEResult where {T<:Real} where S<:Integer
@@ -324,7 +314,6 @@ When called with an EntropyMethod fixes the marginal distribution entropies for 
 
 # Arguments
 - `method::AbstractEntropyMethod = RawPolymatroid()`:
-	- `Direct([optimiser])`: Non-Linear Programming optimisation. The optimiser can be either "ipopt" or "madnlp".
 	- `RawPolymatroid([mle_correction, zhang_yeung, optimiser])`: Polymatroid optimisation with naive estimate of marginal entropies. Optionally include MLE correction and Zhang–Yeung inequalities. The optimiser can be an instance of "SCS" or "Mosek".
 	- `GPolymatroid([zhang_yeung, optimiser, tolerance])`: Polymatroid optimisation with Grassberger entropy estimator. Optionally include Zhang–Yeung inequalities. The optimiser can be an instance of "SCS" or "Mosek". The tolerance is a relaxation of the constraints to help convergence, can lead to negative CI.
 
@@ -338,8 +327,8 @@ If a required entropy is `NaN` for some order, a warning is printed and `NaN` is
 """
 function connected_information(joint_probability::Array{T}, orders::Vector{<:Integer}, method::AbstractEntropyMethod; precalculated_entropies = Dict{Vector{Integer}, Real}(), full_output::Bool=false)::Tuple{Dict{Int, Float64}, Dict{Int, EResult}} where T <: Real
 	if joint_probability isa Array{<:AbstractFloat}
-		if ! ((method isa RawPolymatroid) || (method isa Direct))
-			throw(DomainError("Method must be either RawPolymatroid or Direct for fixed entropy maximisation and normalized joint distribution."))
+		if ! (method isa RawPolymatroid)
+			throw(DomainError("Method must be RawPolymatroid for fixed entropy maximisation and normalized joint distribution."))
 		end # better failing soon with a better error message
 		!isapprox(sum(joint_probability), 1) &&
 			throw(DomainError("Joint probability has to sum to 1"))
@@ -424,19 +413,6 @@ function _max_entropy_for_set(joint_probability::Array{<:T}, marginal_size::Set{
 			result[m] = EMFMEResult(val, ents)
 		else
 			result[m] = EMFMEResult(val)
-		end
-	end
-	return result
-end
-
-function _max_entropy_for_set(joint_probability::Array{T}, marginal_size::Set{<:Integer}, method::Direct; precalculated_entropies = Dict(), full_output::Bool=false)::Dict{Int, EMResult} where T <: Real
-	result = Dict{Int, EMResult}()
-	for m in marginal_size
-		emresult = _max_ent(joint_probability, m, method; precalculated_entropies)
-		if full_output
-			result[m] = emresult
-		else
-			result[m] = EMResult(emresult.entropy)
 		end
 	end
 	return result

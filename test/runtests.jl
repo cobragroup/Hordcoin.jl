@@ -92,7 +92,7 @@ using Test
 
 	# Test fixed marginal entropies
 	etol=1e-2
-	methods_xor2 = [Direct(), RawPolymatroid()]
+	methods_xor2 = [RawPolymatroid(),]
 
 	@testset "Method $m XOR entropy" for m in methods_xor2
 		result1 = maximise_entropy(dx, 1, m)
@@ -113,7 +113,7 @@ using Test
 		@test isapprox(result_dic[1][3], 1; atol=etol)
 	end
 
-	methods_xor3 = [Direct("madnlp"), RawPolymatroid(true), GPolymatroid(), GPolymatroid(0.05)]
+	methods_xor3 = [RawPolymatroid(true), GPolymatroid(), GPolymatroid(0.05)]
 	@testset "Method $m XOR entropy" for m in methods_xor3
 		result1 = maximise_entropy(ax, 1, m)
 		result2 = maximise_entropy(ax, 2, m)
@@ -177,10 +177,6 @@ using Test
 		result = connected_information(dx, 2, m, full_output=true)
 		@test isapprox(result[1][2], 0, atol=etol)
 		@test isapprox(result[2][2].entropy, 3, atol=etol)
-		if m isa Direct
-			@test isapprox(result[2][2].joint_probability[1,1,1], 0.125; atol)
-		else
-			@test isapprox(result[2][2].marginal_entropies[[1,2]], 2, atol=etol)
-		end
+		@test isapprox(result[2][2].marginal_entropies[[1,2]], 2, atol=etol)
 	end
 end;
