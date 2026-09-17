@@ -103,7 +103,7 @@ abstract type PolymatroidEntropyMethod <: AbstractEntropyMethod end
 Polymatroid-based entropy method that uses empirical marginal entropies, with options for MLE correction and Zhang–Yeung inequalities.
 
 # Parameters
-- `mle_correction::Float64`: Amount of MLE bias correction to apply (default `0.0`).
+- `mle_correction::Bool`: Apply Miller-Madow MLE bias correction (default `false`).
 - `zhang_yeung::Bool`: Whether to include Zhang–Yeung inequalities (default `false`).
 - `optimiser::MathOptInterface.AbstractOptimizer`: Optimiser to use.
 """

@@ -77,7 +77,7 @@ function polymatroid_optim(method::PolymatroidEntropyMethod,
 			total = sum(joint_probability)
 			store=Dict{Int64, Array{Float64}}(0=>joint_probability./total)
 			if method.mle_correction
-				mle_correction = (length(joint_probability) - 1) / (2 * total)
+				mle_correction = (2 * total)
 			else
 				mle_correction = 0
 			end
@@ -99,8 +99,8 @@ function polymatroid_optim(method::PolymatroidEntropyMethod,
 
 		# get marginal
 		m= collect(~(Tuple(get_key(k))))
-
-		if count_ones(k)>=num_dimensions-marginal_size
+		this_dimension = num_dimensions - count_ones(k)
+		if this_dimension <= marginal_size
 			# only if I need this marginal
 			if !haskey(ent, m)
 				# and I don't have it already
@@ -110,7 +110,11 @@ function polymatroid_optim(method::PolymatroidEntropyMethod,
 				store[k]=sum(store[available[1]], dims = missing_marginals)
 				push!(available, k)
 				# calculate entropy
-				ent[m] = entropy(store[k])+mle_correction
+				if mle_correction == 0
+					ent[m] = entropy(store[k])
+				else
+					ent[m] = entropy(store[k]) + (count(i->(i>0), store[k]))/mle_correction
+				end
 			end
 			# add associated constraints
 			if (method isa GPolymatroid && method.tolerance > 0)

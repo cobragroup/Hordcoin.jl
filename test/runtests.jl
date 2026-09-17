@@ -169,7 +169,7 @@ using Test
 	end
 
 	@testset "precompute_entropies" begin
-		@test precompute_entropies(ex, RawPolymatroid()) isa Dict{Vector{Int64},Real}
+		@test precompute_entropies(ex, RawPolymatroid(true)) isa Dict{Vector{Int64},Real}
 		@test precompute_entropies(ex, GPolymatroid()) isa Dict{Vector{Int64},Real}
 		@test precompute_entropies(dx, RawPolymatroid()) isa Dict{Vector{Int64},Real}
 		@test_throws InexactError precompute_entropies(dx, GPolymatroid())
