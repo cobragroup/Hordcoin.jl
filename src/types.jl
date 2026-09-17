@@ -79,7 +79,8 @@ Gradient(iterations::Int) = Gradient(iterations, SCS.Optimizer())
 Marginal method that uses the Iterative Proportional Fitting Procedure (IPFP).
 
 # Parameters
-- `iterations::Int`: Number of iterations for IPFP, defaults to `10`.
+- `iterations::Int`: Number of iterations for IPFP, defaults to `1000`.
+- `tol::Float64`: Tolerance for IPFP, defaults to `1e-10`.
 """
 struct Ipfp <: AbstractMarginalMethod
 	iterations::Int
