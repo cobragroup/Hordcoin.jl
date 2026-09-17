@@ -63,10 +63,10 @@ When called with a MarginalMethod fixes **all** marginals of order `marginal_siz
 
 # Arguments
 - `marginal_size::Int`: Order of the marginals to hold fixed. For example, `2` fixes every pairwise marginal.
-- `method::AbstractMarginalMethod = Cone()`:
-	- `Cone([optimizer])`: entropy maximization via exponential cone programming.
-	- `Gradient(; iterations, optimiser)`: projected-gradient approach.
-	- `Ipfp(; iterations)`: iterative proportional fitting (IPFP).
+- `method::AbstractMarginalMethod = Ipfp()`:
+	- `Cone([optimizer])`: entropy maximization via exponential cone programming, by default with SCS optimizer.
+	- `Gradient(iterations, optimiser)`: gradient-based approach, the default number of iterations is 10m the default optimiser is SCS.
+	- `Ipfp([iterations, tol])`: Iterative proportional fitting, the default maximum number of iterations is 1000, the deafault tollerance is 1e-10.
 
 # Returns
 - `EResult`: A result object holding the maximum **entropy** and the **maximally entropic distribution**
@@ -90,8 +90,7 @@ Entropy: 1.7219280948873623
 Distribution:
 [0.1 0.4; 0.4 0.1]
 
-julia> maximise_entropy(x, 1; method = Ipfp())
-Progress: 100%|███████████████████████████████████████████████████████████████████████████████████████████████| Time: 0:00:00
+julia> maximise_entropy(x, 1, Ipfp())
 Entropy: 2.0
 Distribution:
 [0.25 0.25; 0.25 0.25]
@@ -142,7 +141,7 @@ function maximise_method(joint_probability::Array{<:AbstractFloat}, marginals, m
 end
 
 function maximise_method(joint_probability::Array{<:AbstractFloat}, marginals, method::Ipfp)
-	ipfp(joint_probability, marginals, iterations = method.iterations)
+	ipfp(joint_probability, marginals, iterations = method.iterations, tol = method.tol)
 end
 
 """
@@ -172,9 +171,9 @@ When called with a MarginalMethod fixes **all** marginals of order `marginal_siz
 # Arguments
 - `joint_probability::Array{<:Real}`: N-dimensional probability table summing to ~1.
 - `method = Ipfp()`: Optimisation strategy used inside repeated `maximise_entropy` calls. Can be one of:
-	- `Cone(optimiser = SCS.Optimizer())`: cone programming.
-	- `Gradient(iterations, optimiser = SCS.Optimizer())`: gradient-based approach, default number of iterations is 10.
-	- `Ipfp([iterations])`: Iterative proportional fitting, default number of iterations is 10.
+	- `Cone(optimiser = SCS.Optimizer())`: entropy maximization via exponential cone programming, by default with SCS optimizer.
+	- `Gradient(iterations, optimiser = SCS.Optimizer())`: gradient-based approach, the default number of iterations is 10m the default optimiser is SCS.
+	- `Ipfp([iterations, tol])`: Iterative proportional fitting, the default maximum number of iterations is 1000, the deafault tollerance is 1e-10.
 
 # Keywords
 - `precalculated_entropies`: Ignored.
@@ -194,10 +193,11 @@ julia> x = [0.25; 0;; 0; 0.25;;; 0; 0.25;; 0.25; 0]
  0.0   0.25
  0.25  0.0
 
-julia> connected_information(x, [2, 3]; method = Ipfp())
-Dict{Int64, Float64} with 2 entries:
-  2 => 0.0
-  3 => 1.0
+julia> connected_information(x, [2, 3], Ipfp())
+(Dict(2 => 0.0, 3 => 1.0), Dict{Int64, EMResult}(2 => EMResult(3.0, Float64[]), 3 => EMResult(2.0, Float64[]), 1 => EMResult(3.0, Float64[])))
+
+julia> connected_information(x, [2, 3], Ipfp(); full_output=true)
+(Dict(2 => 0.0, 3 => 1.0), Dict{Int64, EMResult}(2 => EMResult(3.0, [0.125 0.125; 0.125 0.125;;; 0.125 0.125; 0.125 0.125]), 3 => EMResult(2.0, [0.25 0.0; 0.0 0.25;;; 0.0 0.25; 0.25 0.0]), 1 => EMResult(3.0, [0.125 0.125; 0.125 0.125;;; 0.125 0.125; 0.125 0.125])))
 ```
 """
 function connected_information(joint_probability::Array{T}, orders::Vector{<:Integer}, method::AbstractMarginalMethod; precalculated_entropies = Dict{Vector{Int}, Real}(), full_output::Bool=false)::Tuple{Dict{Int, Float64}, Dict{Int, EMResult}} where T <: Real
@@ -395,7 +395,7 @@ function _max_entropy_for_set(joint_probability::Array{<:T}, marginal_size::Set{
 	ent = precalculated_entropies
 	si = Dict()
 	result = Dict{Int, EMFMEResult}()
-	for m in marginal_size
+	for m in sort(collect(marginal_size), rev=true)
 		val, h, ent, si = polymatroid_optim(
 			method,
 			joint_probability,

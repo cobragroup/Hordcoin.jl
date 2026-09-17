@@ -113,14 +113,14 @@ using Test
 		@test isapprox(result_dic[1][3], 1; atol=etol)
 	end
 
-	methods_xor3 = [RawPolymatroid(true), GPolymatroid(), GPolymatroid(0.05)]
+	methods_xor3 = [RawPolymatroid(true), GPolymatroid()]
 	@testset "Method $m XOR entropy" for m in methods_xor3
 		result1 = maximise_entropy(ax, 1, m)
 		result2 = maximise_entropy(ax, 2, m)
 		result3 = maximise_entropy(ax, 3, m)
-		@test isapprox(result1.entropy, 3, atol=etol) broken=(m isa GPolymatroid)
-		@test isapprox(result2.entropy, 3, atol=etol) broken=(m isa GPolymatroid)
-		@test isapprox(result3.entropy, 2, atol=etol) broken=(m isa GPolymatroid)
+		@test isapprox(result1.entropy, 3, atol=etol)
+		@test isapprox(result2.entropy, 3, atol=etol)
+		@test isapprox(result3.entropy, 2, atol=etol)
 	end
 	
 	@testset "Method $m XOR connected information" for m in methods_xor3
@@ -128,17 +128,33 @@ using Test
 		result3 = connected_information(ax, 3, m)[1][3]
 		result_dic = connected_information(ax, [2, 3], m)
 		@test isapprox(result2, 0, atol=etol)
-		@test isapprox(result3, 1, atol=etol) broken=(m isa GPolymatroid)
+		@test isapprox(result3, 1, atol=etol)
 		@test isapprox(result_dic[1][2], 0, atol=etol)
-		@test isapprox(result_dic[1][3], 1, atol=etol) broken=(m isa GPolymatroid)
-		@test isapprox(result_dic[2][2].entropy, 3, atol=etol) broken=(m isa GPolymatroid)
-		@test isapprox(result_dic[2][3].entropy, 2, atol=etol) broken=(m isa GPolymatroid)
+		@test isapprox(result_dic[1][3], 1, atol=etol)
+		@test isapprox(result_dic[2][2].entropy, 3, atol=etol)
+		@test isapprox(result_dic[2][3].entropy, 2, atol=etol)
 	end
-
 	@testset "Specific GPolymatroid" begin
 		@test maximise_entropy(bx, 1, GPolymatroid()) isa EMFMEResult
 		cx=[0; 0;; 0; 0;;; 0; 0;; 0; 0]
 		@test_throws ArgumentError maximise_entropy(cx, 1, GPolymatroid())
+
+
+		result1 = maximise_entropy(ax, 1, GPolymatroid(0.05))
+		result2 = maximise_entropy(ax, 2, GPolymatroid(0.05))
+		result3 = maximise_entropy(ax, 3, GPolymatroid(0.05))
+		@test isapprox(result1.entropy, 3, atol=etol*20)
+		@test isapprox(result2.entropy, 3, atol=etol*20)
+		@test isapprox(result3.entropy, 2, atol=etol*20)
+		result2 = connected_information(ax, 2, GPolymatroid(0.05))[1][2]
+		result3 = connected_information(ax, 3, GPolymatroid(0.05))[1][3]
+		result_dic = connected_information(ax, [2, 3], GPolymatroid(0.05))
+		@test isapprox(result2, 0, atol=etol*20)
+		@test isapprox(result3, 1, atol=etol*20)
+		@test isapprox(result_dic[1][2], 0, atol=etol*20)
+		@test isapprox(result_dic[1][3], 1, atol=etol*20)
+		@test isapprox(result_dic[2][2].entropy, 3, atol=etol*20)
+		@test isapprox(result_dic[2][3].entropy, 2, atol=etol*20)
 	end
 	
 	@testset "Test DomainError" begin
@@ -153,10 +169,10 @@ using Test
 	end
 
 	@testset "precompute_entropies" begin
-		@test precompute_entropies(ex, RawPolymatroid()) isa Dict{Vector{Int64},Real}
+		@test precompute_entropies(ex, RawPolymatroid(true)) isa Dict{Vector{Int64},Real}
 		@test precompute_entropies(ex, GPolymatroid()) isa Dict{Vector{Int64},Real}
 		@test precompute_entropies(dx, RawPolymatroid()) isa Dict{Vector{Int64},Real}
-		@test_throws MethodError precompute_entropies(dx, GPolymatroid())
+		@test_throws InexactError precompute_entropies(dx, GPolymatroid())
 	end
 
 	@testset "Test defaults" begin

@@ -79,12 +79,15 @@ Gradient(iterations::Int) = Gradient(iterations, SCS.Optimizer())
 Marginal method that uses the Iterative Proportional Fitting Procedure (IPFP).
 
 # Parameters
-- `iterations::Int`: Number of iterations for IPFP, defaults to `10`.
+- `iterations::Int`: Number of iterations for IPFP, defaults to `1000`.
+- `tol::Float64`: Tolerance for IPFP, defaults to `1e-10`.
 """
 struct Ipfp <: AbstractMarginalMethod
 	iterations::Int
+	tol::Float64
 end
-Ipfp() = Ipfp(10)
+Ipfp() = Ipfp(1000, 1e-10)
+Ipfp(iterations::Int) = Ipfp(iterations, 1e-10)
 
 
 """
@@ -101,7 +104,7 @@ abstract type PolymatroidEntropyMethod <: AbstractEntropyMethod end
 Polymatroid-based entropy method that uses empirical marginal entropies, with options for MLE correction and Zhang–Yeung inequalities.
 
 # Parameters
-- `mle_correction::Float64`: Amount of MLE bias correction to apply (default `0.0`).
+- `mle_correction::Bool`: Apply Miller-Madow MLE bias correction (default `false`).
 - `zhang_yeung::Bool`: Whether to include Zhang–Yeung inequalities (default `false`).
 - `optimiser::MathOptInterface.AbstractOptimizer`: Optimiser to use.
 """

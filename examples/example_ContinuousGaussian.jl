@@ -26,7 +26,7 @@ end
 gaussian_H(mat) = begin
 	# println(mat, size(mat))
 	@assert size(mat)[1] == size(mat)[2]
-	return size(mat)[1] / 2 * log(2 * π * ℯ) + log(det(mat))
+	return size(mat)[1] / 2 * log2(2 * π * ℯ) + log2(det(mat))/2
 end
 
 mask_from_int(n::Int, N::Int) = begin

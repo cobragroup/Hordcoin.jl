@@ -1,7 +1,7 @@
 name = "Hordcoin"
 uuid = "5495aede-444c-4b33-a3d8-b01a3ffd757a"
 authors = ["Jakub Kislinger", "Giulio Tani Raffaelli", "Tomáš Kroupa", "Jaroslav Hlinka"]
-version = "1.2.1"
+version = "1.2.2"
 
 [deps]
 CDDLib = "3391f64e-dcde-5f30-b752-e11513730f60"
@@ -21,10 +21,11 @@ julia = "1.11.8"
 CDDLib = "0.10.2"
 Combinatorics = "1.1.0"
 JuMP = "1.29.4"
-MAT = "0.11.4"
+MAT = "0.11, 0.12"
 MathOptInterface = "1.49.0"
 Mosek = "11.0.1"
 MosekTools = "0.15.10"
 Polyhedra = "0.8.1"
 ProgressMeter = "1.11.0"
 SCS = "2.6.0"
+Statistics = "1.11.4"
