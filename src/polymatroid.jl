@@ -266,7 +266,11 @@ function precompute_entropies(joint_probability::Array{<:Real}, method::Polymatr
 		if isa(joint_probability, Array{<:Integer})
 			total = sum(joint_probability)
 			store=Dict{Int64, Array{Float64}}(0=>joint_probability./total)
-			mle_correction = (length(joint_probability) - 1) / (2 * total)
+			if method.mle_correction
+				mle_correction = (length(joint_probability) - 1) / (2 * total)
+			else
+				mle_correction = 0
+			end
 		else
 			store=Dict{Int64, Array{Float64}}(0=>joint_probability)
 			mle_correction = 0
