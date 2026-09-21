@@ -130,8 +130,9 @@ struct GPolymatroid <: PolymatroidEntropyMethod
 	zhang_yeung::Bool
 	optimiser::MathOptInterface.AbstractOptimizer
 	tolerance::Float64
+	cache::GCache
 end
 
-GPolymatroid() = GPolymatroid(false, SCS.Optimizer(), 0)
-GPolymatroid(zhang_yeung::Bool) = GPolymatroid(zhang_yeung, SCS.Optimizer(), 0)
-GPolymatroid(tolerance::Float64) = GPolymatroid(false, SCS.Optimizer(), tolerance)
+GPolymatroid() = GPolymatroid(false, SCS.Optimizer(), 0, GCache(; init_len=2))
+GPolymatroid(zhang_yeung::Bool) = GPolymatroid(zhang_yeung, SCS.Optimizer(), 0, GCache(; init_len=2))
+GPolymatroid(tolerance::Float64) = GPolymatroid(false, SCS.Optimizer(), tolerance, GCache(; init_len=2))

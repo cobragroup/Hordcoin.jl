@@ -32,9 +32,9 @@ export EResult
 export EMResult
 export EMFMEResult
 
+include("Gcorr.jl")
 include("types.jl")
 include("utils.jl")
-include("Gcorr.jl")
 include("ipfp.jl")
 include("exponentialCone.jl")
 include("projectedGradient.jl")

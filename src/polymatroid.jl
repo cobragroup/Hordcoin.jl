@@ -72,27 +72,22 @@ function polymatroid_optim(method::PolymatroidEntropyMethod,
 	get_key(s::Int64) = (i+1 for i ∈ 0:num_dimensions-1 if (s>>i)&1==1)
 
 	available=Int64[0]
+	total = Int(sum(joint_probability))
 	if isa(method, RawPolymatroid)
 		if isa(joint_probability, Array{<:Integer})
-			total = sum(joint_probability)
 			store=Dict{Int64, Array{Float64}}(0=>joint_probability./total)
-			if method.mle_correction
-				mle_correction = (2 * total)
-			else
-				mle_correction = 0
-			end
 		else
 			store=Dict{Int64, Array{Float64}}(0=>joint_probability)
-			mle_correction = 0
+			method.mle_correction = false
 		end
 	else
 		store=Dict{Int64, Array{T}}(0=>joint_probability)
-		mle_correction = 0
+		_update_G!(method.cache, div(total, 2))
 	end
 
 	for k in 2^(num_dimensions-marginal_size)-1:2^num_dimensions-2
 		# clean out stale entries
-		while k|available[1]>k
+		while k|available[end]>k
 			stale=pop!(available)
 			delete!(store, stale)			
 		end
@@ -105,16 +100,14 @@ function polymatroid_optim(method::PolymatroidEntropyMethod,
 			if !haskey(ent, m)
 				# and I don't have it already
 				# figure out missing marginals
-				missing_marginals=get_key(k ⊻ available[1])
+				missing_marginals=get_key(k ⊻ available[end])
 				# marginalize and store
-				store[k]=sum(store[available[1]], dims = missing_marginals)
-				push!(available, k)
-				# calculate entropy
-				if mle_correction == 0
-					ent[m] = entropy(store[k])
-				else
-					ent[m] = entropy(store[k]) + (count(i->(i>0), store[k]))/mle_correction
+				if !haskey(store, k)
+					store[k]=sum(store[available[end]], dims = missing_marginals)
+					push!(available, k)
 				end
+				# calculate entropy
+				ent[m] = entropy(store[k], total, method)
 			end
 			# add associated constraints
 			if (method isa GPolymatroid && method.tolerance > 0)
@@ -222,8 +215,12 @@ Computes `distribution_entropy(joint_probabilityability).
 # Returns
 - `Real`: Estimated entropy of the marginal defined by `inverse_marginals`.
 """
-function entropy(joint_probability::Array{T})::Real where T <: AbstractFloat
-	return distribution_entropy(joint_probability)
+function entropy(joint_probability::Array{T}, total::S, method::RawPolymatroid)::Real where T <: AbstractFloat where S <: Integer
+	de = distribution_entropy(joint_probability)
+	if method.mle_correction
+		return de + (count(i->(i>0), joint_probability))/(2*total)
+	end
+	return de
 end
 
 """
@@ -237,8 +234,8 @@ Entropy helper for `GPolymatroid` using the **Grassberger estimator** on counts.
 # Returns
 - `Real`: Grassberger estimate `Gcorr(counts)`.
 """
-function entropy(counts::Array{T})::Real where T <: Integer
-	return Gcorr(counts)
+function entropy(counts::Array{T}, total::S, method::GPolymatroid)::Real where T <: Integer where S <: Integer
+	return Gcorr(counts; N = total, cache = method.cache)
 end
 
 export precompute_entropies
@@ -256,7 +253,7 @@ Useful when repeatedly solving polymatroid programs with the same joint_probabil
 # Returns
 - `Dict{Vector{Int},Real}` mapping each subset `S` (stored as a sorted `Vector{Int}`) to `Gcorr` entropy of the marginal over `S`.
 """
-function precompute_entropies(joint_probability::Array{<:Real}, method::PolymatroidEntropyMethod = GPolymatroid())::Dict{Vector{Int64},Real}
+function precompute_entropies(joint_probability::Array{<: Real}, method::PolymatroidEntropyMethod = GPolymatroid())::Dict{Vector{Int64},Real}
 
 	entropies = Dict()
 
@@ -266,41 +263,37 @@ function precompute_entropies(joint_probability::Array{<:Real}, method::Polymatr
 	get_key(s::Int64) = (i+1 for i ∈ 0:num_dimensions-1 if (s>>i)&1==1)
 
 	available=Int64[0]
+	total = Int(sum(joint_probability))
 	if isa(method, RawPolymatroid)
 		if isa(joint_probability, Array{<:Integer})
-			total = sum(joint_probability)
 			store=Dict{Int64, Array{Float64}}(0=>joint_probability./total)
-			if method.mle_correction
-				mle_correction = (length(joint_probability) - 1) / (2 * total)
-			else
-				mle_correction = 0
-			end
 		else
 			store=Dict{Int64, Array{Float64}}(0=>joint_probability)
-			mle_correction = 0
+			method.mle_correction = false
 		end
 	else
 		store=Dict{Int64, Array{Integer}}(0=>joint_probability)
-		mle_correction = 0
+		_update_G!(method.cache, div(total, 2))
 	end
 
 	for k in 0:2^num_dimensions-2
 		# clean out stale entries
-		while k|available[1]>k
+		while k|available[end]>k
 			stale=pop!(available)
 			delete!(store, stale)			
 		end
-
 		# get marginal
 		m= collect(~(Tuple(get_key(k))))
 
 		# figure out missing marginals
-		missing_marginals=get_key(k ⊻ available[1])
+		missing_marginals=get_key(k ⊻ available[end])
 		# marginalize and store
-		store[k]=sum(store[available[1]], dims = missing_marginals)
-		push!(available, k)
+		if !haskey(store, k)
+			store[k]=sum(store[available[end]], dims = missing_marginals)
+			push!(available, k)
+		end
 		# calculate entropy
-		entropies[m] = entropy(store[k])+mle_correction
+		entropies[m] = entropy(store[k], total, method)
 	end
 	entropies[Int64[]] = 0
 	return entropies
