@@ -118,6 +118,18 @@ RawPolymatroid() = RawPolymatroid(false, false, SCS.Optimizer())
 RawPolymatroid(mle_correction::Bool) = RawPolymatroid(mle_correction, false, SCS.Optimizer())
 RawPolymatroid(mle_correction::Bool, zhang_yeung::Bool) = RawPolymatroid(mle_correction, zhang_yeung, SCS.Optimizer())
 
+
+"""
+	GCache
+
+Lightweight cache for the auxiliary sequence `G` used by the G estimator.
+The cache grows on demand and can be reused across calls to avoid recomputation.
+"""
+mutable struct GCache
+	G::Vector{Float64}
+	max_len::Int
+end
+
 """
 Polymatroid-based entropy method that uses the Grassberger entropy estimator for marginals.
 
@@ -136,4 +148,6 @@ end
 GPolymatroid() = GPolymatroid(false, SCS.Optimizer(), 0, GCache(; init_len=2))
 GPolymatroid(zhang_yeung::Bool) = GPolymatroid(zhang_yeung, SCS.Optimizer(), 0, GCache(; init_len=2))
 GPolymatroid(tolerance::Float64) = GPolymatroid(false, SCS.Optimizer(), tolerance, GCache(; init_len=2))
-GPolymatroid(zhang_yeung::Bool, optimiser::MathOptInterface.AbstractOptimizer, tolerance::Float64) = GPolymatroid(zhang_yeung, optimiser, tolerance, GCache())
+GPolymatroid(zhang_yeung::Bool, optimiser::MathOptInterface.AbstractOptimizer, tolerance::Float64) = GPolymatroid(zhang_yeung, optimiser, tolerance, GCache(; init_len=2))
+GPolymatroid(zhang_yeung::Bool, tolerance::Float64, cache::GCache) = GPolymatroid(zhang_yeung, SCS.Optimizer(), tolerance, cache)
+GPolymatroid(zhang_yeung::Bool, tolerance::Float64) = GPolymatroid(zhang_yeung, SCS.Optimizer(), tolerance, GCache(; init_len=2))

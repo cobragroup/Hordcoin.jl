@@ -20,6 +20,7 @@ export Ipfp
 export PolymatroidEntropyMethod
 export RawPolymatroid
 export GPolymatroid
+export GCache
 
 export maximise_entropy
 export connected_information
@@ -32,9 +33,9 @@ export EResult
 export EMResult
 export EMFMEResult
 
-include("Gcorr.jl")
 include("types.jl")
 include("utils.jl")
+include("Gcorr.jl")
 include("ipfp.jl")
 include("exponentialCone.jl")
 include("projectedGradient.jl")

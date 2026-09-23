@@ -9,16 +9,6 @@
 
 const γ = 0.57721566490153286060651209008240243104215933593992
 
-"""
-	GCache
-
-Lightweight cache for the auxiliary sequence `G` used by the G estimator.
-The cache grows on demand and can be reused across calls to avoid recomputation.
-"""
-mutable struct GCache
-	G::Vector{Float64}
-	max_len::Int
-end
 
 """
 GCache(; init_len::Integer = 1024, max_len::Integer = 50000) -> GCache
