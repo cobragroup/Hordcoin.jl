@@ -21,7 +21,7 @@ mutable struct GCache
 end
 
 """
-	GCache(; init_len::Integer = 1024, max_len::Integer = 50000) -> GCache
+GCache(; init_len::Integer = 1024, max_len::Integer = 50000) -> GCache
 
 Create a cache with an initial length for the `G` sequence. The cache will
 resize automatically if counts require larger indices.
@@ -34,7 +34,7 @@ For values above `max_len`, the `G` sequence will be truncated to `max_len` and
 the estimator will fall back to `log(c)`. This causes a relative error of about
 `1e-6`, roughly 300 times smaller than the expected error due to sampling.
 
-G[50000] -> 100000 samples ~ 316 samples expected error.
+G[50000] -> 100000 samples ~ 316 samples of expected error.
 (G[50000]-G[50000-158])/G[50000] ~ 300 * (G[50000]-log(100000))/G[50000]
 """
 function GCache(; init_len::Integer = 1024, max_len::Integer = 50000)
@@ -47,6 +47,7 @@ function GCache(; init_len::Integer = 1024, max_len::Integer = 50000)
 	end
 	return GCache(G, max_len)
 end
+GCache(max_len::Int)=GCache(; init_len=2, max_len=max_len)
 
 # Internal: update G such that it is long enough for index `need_len`
 function _update_G!(cache::GCache, need_len::Int)
