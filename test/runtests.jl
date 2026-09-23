@@ -195,4 +195,5 @@ using Test
 		@test isapprox(result[2][2].entropy, 3, atol=etol)
 		@test isapprox(result[2][2].marginal_entropies[[1,2]], 2, atol=etol)
 	end
+	@test isapprox(maximise_entropy(ax, 2,  GPolymatroid(false, 0., GCache(; init_len=100, max_len=200))).entropy, 3, atol=1e-3)
 end;

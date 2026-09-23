@@ -9,23 +9,25 @@
 
 const γ = 0.57721566490153286060651209008240243104215933593992
 
-"""
-	GCache
-
-Lightweight cache for the auxiliary sequence `G` used by the G estimator.
-The cache grows on demand and can be reused across calls to avoid recomputation.
-"""
-mutable struct GCache
-	G::Vector{Float64}
-end
 
 """
-	GCache(; init_len::Integer = 1024) -> GCache
+GCache(; init_len::Integer = 1024, max_len::Integer = 50000) -> GCache
 
 Create a cache with an initial length for the `G` sequence. The cache will
 resize automatically if counts require larger indices.
+
+# Arguments
+- `init_len::Integer = 1024`: Initial length of the `G` sequence.
+- `max_len::Integer = 50000`: Maximum length of the `G` sequence.
+
+For values above `max_len`, the `G` sequence will be truncated to `max_len` and
+the estimator will fall back to `log(c)`. This causes a relative error of about
+`1e-6`, roughly 300 times smaller than the expected error due to sampling.
+
+G[50000] -> 100000 samples ~ 316 samples of expected error.
+(G[50000]-G[50000-158])/G[50000] ~ 300 * (G[50000]-log(100000))/G[50000]
 """
-function GCache(; init_len::Integer = 1024)
+function GCache(; init_len::Integer = 1024, max_len::Integer = 50000)
 	init_len = max(2, Int(init_len))
 	G = Vector{Float64}(undef, init_len)
 	G[1] = -γ - log(2)
@@ -33,14 +35,20 @@ function GCache(; init_len::Integer = 1024)
 	for i in 3:init_len
 		G[i] = G[i-1] + 2 / (2 * (i - 2) + 1)
 	end
-	return GCache(G)
+	return GCache(G, max_len)
 end
+GCache(max_len::Int)=GCache(; init_len=2, max_len=max_len)
 
 # Internal: update G such that it is long enough for index `need_len`
 function _update_G!(cache::GCache, need_len::Int)
 	G = cache.G
 	if need_len <= length(G)
 		return cache
+	end
+	if need_len < cache.max_len
+		need_len = min(nextpow(2, need_len), cache.max_len)
+	else
+		need_len = cache.max_len
 	end
 	old_len = length(G)
 	resize!(G, need_len)
@@ -51,6 +59,18 @@ function _update_G!(cache::GCache, need_len::Int)
 	return cache
 end
 
+function get_G(cache::GCache, c::Int)
+	if c == 0
+		return 0.0
+	end
+
+	need_len = div(c, 2) + 1
+	if need_len > cache.max_len
+		return log(float(c))
+	end
+	
+	return cache.G[need_len]
+end
 """
 	Gcorr(counts::AbstractVector{<:Integer}; cache::GCache = GCache(), check::Bool = true) -> Float64
 
@@ -76,9 +96,8 @@ returns `log(N) - (E / N)` where `E = sum(counts[i] * G[div(counts[i], 2) + 1])`
 - The estimate is in **nats** (uses natural logarithms). Convert to bits with `/ log(2)` if needed.
 - For very large counts, `G` will grow to about `div(max(counts), 2) + 1`.
 """
-function Gcorr(counts::AbstractVector{<:Integer}; cache::GCache = GCache())::Float64
+function Gcorr(counts::AbstractVector{<:Integer}; N::Integer = sum(counts), cache::GCache = GCache())::Float64
 	any(x -> x < 0, counts) && throw(ArgumentError("Counts must be ≥ 0."))
-	N = sum(counts)
 	if N == 0
 		throw(ArgumentError("G estimator undefined for an empty histogram (sum(counts) == 0)."))
 	end
@@ -91,9 +110,7 @@ function Gcorr(counts::AbstractVector{<:Integer}; cache::GCache = GCache())::Flo
 	E = 0.0
 	for i in eachindex(counts)
 		c = Int(counts[i])
-		if c > 0
-			E += c * cache.G[div(c, 2)+1]
-		end
+		E += c * get_G(cache, c)
 	end
 	return (log(float(N)) - (E / float(N)))/log(2)
 end

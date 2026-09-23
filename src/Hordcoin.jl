@@ -20,6 +20,7 @@ export Ipfp
 export PolymatroidEntropyMethod
 export RawPolymatroid
 export GPolymatroid
+export GCache
 
 export maximise_entropy
 export connected_information
